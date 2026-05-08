@@ -1,1029 +1,752 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GPS Arrival Test</title>
-  <style>
-    :root {
-      --bg: #090406;
-      --panel: #16090d;
-      --panel-2: #12060a;
-      --line: #4a1822;
-      --text: #ffe5ea;
-      --muted: #b78592;
-      --cyan: #ff174f;
-      --cyan-dim: rgba(255, 23, 79, 0.16);
-      --danger: #ff5f7e;
-      --button: #3a1620;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科技儀表板｜金額工具系統</title>
+
+<style>
+:root{
+    --bg:#020617;
+    --panel:#0f172a;
+    --glass:rgba(15,23,42,.72);
+    --glass2:rgba(30,41,59,.58);
+    --red:#ef4444;
+    --red2:#991b1b;
+    --red3:#fca5a5;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --gold:#fde68a;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Microsoft JhengHei","Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    color:var(--text);
+    background:
+        radial-gradient(circle at 20% 5%, rgba(239,68,68,.38), transparent 26%),
+        radial-gradient(circle at 90% 20%, rgba(127,29,29,.38), transparent 28%),
+        linear-gradient(135deg,#020617 0%,#111827 45%,#020617 100%);
+    overflow:hidden;
+}
+
+/* 背景網格 */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(248,113,113,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(248,113,113,.055) 1px, transparent 1px);
+    background-size:36px 36px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.9),rgba(0,0,0,.2));
+    pointer-events:none;
+}
+
+.app{
+    position:relative;
+    z-index:1;
+    height:100vh;
+    display:grid;
+    grid-template-columns:230px 1fr;
+    grid-template-rows:76px 1fr;
+}
+
+/* 頂部狀態列 */
+.topbar{
+    grid-column:1 / 3;
+    height:76px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    background:rgba(2,6,23,.72);
+    border-bottom:1px solid rgba(248,113,113,.28);
+    backdrop-filter:blur(18px);
+    box-shadow:0 0 28px rgba(239,68,68,.16);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.brand-icon{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#ef4444,#7f1d1d);
+    box-shadow:0 0 24px rgba(239,68,68,.75);
+    display:grid;
+    place-items:center;
+    font-size:22px;
+}
+
+.brand-title{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:2px;
+    color:#fecaca;
+    text-shadow:0 0 14px rgba(248,113,113,.65);
+}
+
+.status{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    color:var(--muted);
+    font-size:14px;
+}
+
+.status-pill{
+    border:1px solid rgba(248,113,113,.28);
+    background:rgba(15,23,42,.72);
+    padding:9px 14px;
+    border-radius:999px;
+    box-shadow:inset 0 0 14px rgba(239,68,68,.08);
+}
+
+.dot{
+    display:inline-block;
+    width:9px;
+    height:9px;
+    margin-right:7px;
+    border-radius:50%;
+    background:#22c55e;
+    box-shadow:0 0 12px #22c55e;
+}
+
+/* 左側選單 */
+.sidebar{
+    grid-row:2;
+    padding:22px 18px;
+    background:rgba(2,6,23,.55);
+    border-right:1px solid rgba(248,113,113,.22);
+    backdrop-filter:blur(14px);
+}
+
+.section-label{
+    font-size:12px;
+    color:#fca5a5;
+    letter-spacing:2px;
+    margin:8px 10px 16px;
+    opacity:.85;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.menu button{
+    position:relative;
+    width:100%;
+    padding:15px 16px;
+    border:none;
+    border-radius:16px;
+    text-align:left;
+    color:#cbd5e1;
+    background:rgba(15,23,42,.64);
+    border:1px solid rgba(255,255,255,.07);
+    cursor:pointer;
+    font-size:17px;
+    transition:.22s;
+    overflow:hidden;
+}
+
+.menu button::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:12px;
+    bottom:12px;
+    width:4px;
+    border-radius:999px;
+    background:transparent;
+    box-shadow:none;
+}
+
+.menu button:hover{
+    color:white;
+    transform:translateX(3px);
+    border-color:rgba(248,113,113,.35);
+    box-shadow:0 0 18px rgba(239,68,68,.16);
+}
+
+.menu button.active{
+    color:white;
+    background:
+        linear-gradient(135deg, rgba(239,68,68,.32), rgba(127,29,29,.18)),
+        rgba(15,23,42,.8);
+    border-color:rgba(248,113,113,.58);
+    box-shadow:
+        0 0 22px rgba(239,68,68,.28),
+        inset 0 0 18px rgba(239,68,68,.12);
+}
+
+.menu button.active::before{
+    background:#ef4444;
+    box-shadow:0 0 14px #ef4444;
+}
+
+.menu small{
+    display:block;
+    margin-top:4px;
+    color:#94a3b8;
+    font-size:12px;
+}
+
+/* 主區域 */
+.main{
+    grid-row:2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:26px;
+}
+
+.dashboard-card{
+    width:100%;
+    max-width:620px; /* 右邊視窗再縮小 */
+    min-height:430px;
+    display:none;
+    position:relative;
+    padding:22px 26px;
+    border-radius:28px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
+        rgba(15,23,42,.70);
+    border:1px solid rgba(248,113,113,.26);
+    backdrop-filter:blur(18px);
+    box-shadow:
+        0 0 34px rgba(239,68,68,.20),
+        inset 0 0 28px rgba(255,255,255,.035);
+}
+
+.dashboard-card.active{
+    display:block;
+    animation:cardIn .28s ease;
+}
+
+@keyframes cardIn{
+    from{opacity:0; transform:translateY(10px) scale(.99);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+}
+
+.card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    padding-bottom:12px;
+    border-bottom:1px solid rgba(248,113,113,.20);
+}
+
+.card-title h2{
+    font-size:28px;
+    color:#fecaca;
+    text-shadow:0 0 14px rgba(248,113,113,.58);
+    margin-bottom:6px;
+}
+
+.card-title p{
+    font-size:13px;
+    color:#94a3b8;
+}
+
+.card-chip{
+    color:#fca5a5;
+    border:1px solid rgba(248,113,113,.32);
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:12px;
+    background:rgba(127,29,29,.18);
+}
+
+.inputGroup{
+    margin-bottom:14px;
+}
+
+label{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:9px;
+    color:#fca5a5;
+    font-size:14px;
+    letter-spacing:1px;
+}
+
+label span{
+    color:#64748b;
+    font-size:12px;
+}
+
+/* 控制面板輸入框 */
+input,select{
+    width:100%;
+    height:46px;
+    padding:0 15px;
+    border-radius:15px;
+    border:1px solid rgba(248,113,113,.24);
+    outline:none;
+    color:#f8fafc;
+    font-size:18px;
+    background:
+        linear-gradient(180deg, rgba(2,6,23,.95), rgba(15,23,42,.88));
+    box-shadow:
+        inset 0 0 18px rgba(0,0,0,.45),
+        0 0 0 rgba(239,68,68,0);
+    transition:.2s;
+}
+
+input::placeholder{
+    color:#475569;
+}
+
+input:focus,
+select:focus{
+    border-color:#ef4444;
+    box-shadow:
+        inset 0 0 18px rgba(0,0,0,.45),
+        0 0 18px rgba(239,68,68,.38);
+}
+
+/* 修正下拉選單白底白字問題 */
+select{
+    color:#ffffff;
+    background-color:#020617;
+}
+
+select option{
+    background:#020617;
+    color:#ffffff;
+}
+
+select option:checked{
+    background:#dc2626;
+    color:#ffffff;
+}
+
+.actionBtn{
+    width:100%;
+    height:50px;
+    margin-top:8px;
+    border:none;
+    border-radius:17px;
+    cursor:pointer;
+    color:white;
+    font-size:19px;
+    font-weight:800;
+    letter-spacing:2px;
+    background:
+        linear-gradient(135deg,#ef4444,#7f1d1d 70%);
+    box-shadow:
+        0 0 24px rgba(239,68,68,.38),
+        inset 0 1px 0 rgba(255,255,255,.18);
+    transition:.22s;
+}
+
+.actionBtn:hover{
+    transform:translateY(-2px);
+    box-shadow:
+        0 0 34px rgba(239,68,68,.55),
+        inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.result{
+    margin-top:16px;
+    min-height:64px;
+    padding:16px;
+    border-radius:20px;
+    color:var(--gold);
+    font-size:19px;
+    line-height:1.75;
+    background:
+        linear-gradient(180deg, rgba(2,6,23,.92), rgba(15,23,42,.72));
+    border:1px solid rgba(250,204,21,.18);
+    box-shadow:
+        inset 0 0 24px rgba(0,0,0,.42),
+        0 0 22px rgba(239,68,68,.10);
+    word-break:break-all;
+}
+
+.footer-note{
+    margin-top:16px;
+    font-size:12px;
+    color:#64748b;
+    text-align:center;
+}
+
+/* 玻璃角落線條 */
+.dashboard-card::before,
+.dashboard-card::after{
+    content:"";
+    position:absolute;
+    width:72px;
+    height:72px;
+    pointer-events:none;
+}
+
+.dashboard-card::before{
+    top:14px;
+    left:14px;
+    border-top:2px solid rgba(248,113,113,.45);
+    border-left:2px solid rgba(248,113,113,.45);
+    border-radius:18px 0 0 0;
+}
+
+.dashboard-card::after{
+    right:14px;
+    bottom:14px;
+    border-right:2px solid rgba(248,113,113,.38);
+    border-bottom:2px solid rgba(248,113,113,.38);
+    border-radius:0 0 18px 0;
+}
+
+/* 手機版 */
+@media(max-width:820px){
+    body{
+        overflow:auto;
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      background-image:
-        linear-gradient(rgba(255,23,79,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,23,79,.03) 1px, transparent 1px);
-      background-size: 32px 32px;
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    .app{
+        min-height:100vh;
+        grid-template-columns:1fr;
+        grid-template-rows:auto auto 1fr;
     }
 
-    .topbar {
-      border-bottom: 1px solid var(--cyan);
-      background: linear-gradient(180deg, #19070d 0%, #100407 100%);
-      padding: 22px 28px 18px;
+    .topbar{
+        grid-column:1;
+        height:auto;
+        padding:18px;
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
     }
 
-    .brand {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
+    .status{
+        flex-wrap:wrap;
     }
 
-    .satellite { font-size: 24px; margin-top: 2px; }
-
-    .title {
-      margin: 0;
-      color: var(--cyan);
-      font-family: Consolas, 'Courier New', monospace;
-      letter-spacing: 7px;
-      font-size: 24px;
-      font-weight: 700;
+    .sidebar{
+        grid-row:2;
+        border-right:none;
+        border-bottom:1px solid rgba(248,113,113,.22);
     }
 
-    .version {
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 1px;
-      margin-left: 8px;
+    .menu{
+        display:grid;
+        grid-template-columns:1fr;
     }
 
-    .subtitle {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 14px;
+    .main{
+        grid-row:3;
+        padding:18px;
+        align-items:flex-start;
     }
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      background: linear-gradient(180deg, #19070d 0%, #100407 100%);
-      border-bottom: 1px solid #202832;
-      padding: 0 22px;
+    .dashboard-card{
+        max-width:100%;
+        min-height:auto;
+        padding:24px;
     }
 
-    .tab {
-      border: 0;
-      background: transparent;
-      color: #a7b2c1;
-      padding: 16px 18px;
-      font-size: 15px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
+    .card-head{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
     }
-
-    .tab.active {
-      color: var(--cyan);
-      border-bottom-color: var(--cyan);
-      text-shadow: 0 0 8px rgba(255,23,79,.7);
-    }
-
-    .container {
-      width: min(1120px, calc(100% - 32px));
-      margin: 24px auto 60px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      box-shadow: 0 0 24px rgba(255, 23, 79, 0.12), 0 10px 28px rgba(0,0,0,.45);
-      overflow: hidden;
-    }
-
-    .card-body { padding: 18px; }
-
-    .section-title {
-      color: var(--cyan);
-      font-family: Consolas, 'Courier New', monospace;
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 2px;
-      margin-bottom: 18px;
-    }
-
-    .section-title::before {
-      content: "▸";
-      margin-right: 10px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    label {
-      display: block;
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 7px;
-    }
-
-    select, input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid #303946;
-      background: #0c1117;
-      color: var(--text);
-      border-radius: 6px;
-      padding: 0 18px;
-      font-size: 15px;
-      outline: none;
-    }
-
-    select:focus, input:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 0 3px var(--cyan-dim);
-    }
-
-    .gps-area {
-      min-height: 360px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      padding: 16px;
-    }
-
-    .pin-button {
-      width: 185px;
-      height: 185px;
-      border-radius: 50%;
-      border: 5px solid rgba(255, 23, 79, .45);
-      background: radial-gradient(circle, rgba(255,23,79,.18), rgba(255,23,79,.05));
-      color: rgba(32,224,192,.55);
-      font-size: 18px;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .pin-button:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      transform: scale(1.03);
-      box-shadow: 0 0 26px rgba(255,23,79,.45);
-    }
-
-    .pin-button span { text-align: center; line-height: 1.8; }
-
-    .status {
-      box-shadow: 0 0 18px rgba(255,23,79,.22);
-      padding: 12px 34px;
-      background: var(--button);
-      color: #bfc7d2;
-      border-radius: 999px;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .message {
-      width: 100%;
-      border: 1px solid #303946;
-      background: #0c1117;
-      color: var(--muted);
-      border-radius: 6px;
-      padding: 12px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .map-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .map-tab {
-      background: #0c1117;
-      border: 1px solid #303946;
-      color: #edf3f7;
-      border-radius: 6px;
-      padding: 14px;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .map-view {
-      height: 300px;
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      text-align: center;
-      line-height: 2;
-    }
-
-    .map-frame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .map-icon { font-size: 38px; opacity: .9; }
-
-    .form-grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    .danger-btn:hover {
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-
-    .manage-table {
-      margin-top: 12px;
-    }
-
-    .record-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 12px;
-    }
-
-    .small-btn {
-      border: 1px solid #303946;
-      background: #0c1117;
-      color: var(--text);
-      border-radius: 6px;
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-
-    .small-btn:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 780px;
-      background: #0c1117;
-    }
-
-    th, td {
-      border-bottom: 1px solid var(--line);
-      padding: 12px 14px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    th {
-      color: var(--cyan);
-      background: #111820;
-      font-weight: 700;
-    }
-
-    td { color: #c9d3df; }
-
-    tr:last-child td { border-bottom: 0; }
-
-    @media (max-width: 760px) {
-      .form-grid-3 { grid-template-columns: 1fr; }
-      .button-row { align-items: stretch; }
-      .title { font-size: 18px; letter-spacing: 4px; }
-      .grid-2, .map-tabs { grid-template-columns: 1fr; }
-      .tab { padding: 14px 10px; font-size: 13px; }
-      .tabs { overflow-x: auto; }
-      .pin-button { width: 150px; height: 150px; }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+}
+</style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="satellite">🛰️</div>
-      <div>
-        <h1 class="title">GPS ARRIVAL TEST <span class="version">v2</span></h1>
-        <div class="subtitle">到達位置驗證系統 —— 各地址獨立距離閾值 —— OpenStreetMap 自動定位座標</div>
-      </div>
-    </div>
-  </header>
 
-  <nav class="tabs">
-    <button class="tab active">🎯 執行測試</button>
-    <button class="tab" data-page="recordsPage">📋 測試記錄</button>
-    <button class="tab" data-page="requestManagePage">👤 需求者管理</button>
-    <button class="tab" data-page="employeeManagePage">🧑‍💼 測試者管理</button>
-    <button class="tab" id="exportXlsxBtn">💾 匯出 XLSX</button>
-  </nav>
+<div class="app">
 
-  <main class="container">
-    <div id="mainPage">
-    <section class="card">
-      <div class="card-body">
-        <div class="section-title">選擇人員與任務</div>
-        <div class="grid-2">
-          <div>
-            <label>測試者員工編號</label>
-            <select id="tester">
-              <option value="">—— 請選擇 ——</option>
-            </select>
-          </div>
-          <div>
-            <label>需求者需求編號</label>
-            <select id="requester">
-              <option value="">—— 請選擇 ——</option>
-            </select>
-          </div>
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon">◈</div>
+            <div>
+                <div class="brand-title">科技儀表板｜金額工具系統</div>
+            </div>
         </div>
-      </div>
-    </section>
 
-    <section class="card">
-      <div class="card-body">
-        <div class="section-title">GPS 打卡</div>
-        <div class="gps-area">
-          <button class="pin-button" id="clockBtn"><span>📍<br>立即打卡</span></button>
-          <div class="status" id="status">尚未打卡</div>
-          <div class="message" id="message">請先選擇測試者與需求者編號</div>
+        <div class="status">
+            <div class="status-pill"><span class="dot"></span> SYSTEM ONLINE</div>
+            <div class="status-pill" id="clock">--:--:--</div>
+            <div class="status-pill">TAX / CURRENCY / NUMBER</div>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <section class="card">
-      <div class="map-tabs">
-        <button class="map-tab" id="showRequesterMap">📍 需求者位置</button>
-        <button class="map-tab" id="showTesterMap">🧭 測試者位置</button>
-      </div>
-      <div class="map-view" id="mapText">
-        <div>
-          <div class="map-icon">🗺️</div>
-          請按上方按鈕查看地圖位置
-        </div>
-      </div>
-    </section>
-      </div>
+    <aside class="sidebar">
+        <div class="section-label">CONTROL MENU</div>
 
-    <div id="employeeManagePage" style="display:none;">
-    <section class="card">
-      <div class="card-body">
-        <div class="section-title">員工編號管理</div>
-        <div class="form-grid-3">
-          <div>
-            <label>員工編號</label>
-            <input id="employeeIdInput" placeholder="例如：A001" />
-          </div>
-          <div>
-            <label>員工姓名</label>
-            <input id="employeeNameInput" placeholder="例如：王小明" />
-          </div>
-          <div class="button-row">
-            <button class="small-btn" id="saveEmployeeBtn">新增 / 修改</button>
-            <button class="small-btn danger-btn" id="deleteEmployeeBtn">刪除</button>
-          </div>
-        </div>
-        <div class="table-wrap manage-table">
-          <table>
-            <thead>
-              <tr>
-                <th>員工編號</th>
-                <th>員工姓名</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="employeesBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+        <nav class="menu">
+            <button class="active" onclick="showPage('taxPage', this)">
+                稅金計算
+                <small>完稅 / 未稅 / 稅額</small>
+            </button>
 
-    </div>
+            <button onclick="showPage('chinesePage', this)">
+                數字轉國字
+                <small>阿拉伯數字 → 國字金額</small>
+            </button>
 
-    <div id="requestManagePage" style="display:none;">
-    <section class="card">
-      <div class="card-body">
-        <div class="section-title">需求編號管理</div>
-        <div class="form-grid-3">
-          <div>
-            <label>需求編號</label>
-            <input id="requestIdInput" placeholder="例如：R001" />
-          </div>
-          <div>
-            <label>需求名稱 / 地點</label>
-            <input id="requestNameInput" placeholder="例如：板橋車站" />
-          </div>
-          <div>
-            <label>地址</label>
-            <input id="requestAddressInput" placeholder="例如：新北市板橋區縣民大道二段7號" />
-          </div>
-          <div class="button-row">
-            <button class="small-btn" id="saveRequestBtn">新增 / 修改</button>
-            <button class="small-btn danger-btn" id="deleteRequestBtn">刪除</button>
-          </div>
-        </div>
-        <div class="table-wrap manage-table">
-          <table>
-            <thead>
-              <tr>
-                <th>需求編號</th>
-                <th>名稱</th>
-                <th>地址</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="requestsBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+            <button onclick="showPage('currencyPage', this)">
+                幣值轉換
+                <small>USD ↔ TWD</small>
+            </button>
+        </nav>
+    </aside>
 
-    </div>
+    <main class="main">
 
-    <div id="recordsPage" style="display:none;">
-    <section class="card">
-      <div class="card-body">
-        <div class="section-title">測試記錄</div>
-        <div class="record-actions">
-          <button class="small-btn" id="clearRecordsBtn">清空記錄</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>時間</th>
-                <th>測試者</th>
-                <th>需求者</th>
-                <th>緯度</th>
-                <th>經度</th>
-                <th>地址</th>
-                <th>距離</th>
-                <th>狀態</th>
-              </tr>
-            </thead>
-            <tbody id="recordsBody">
-              <tr><td colspan="7">目前沒有記錄</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </div>
-  </main>
+        <section class="dashboard-card active" id="taxPage">
+            <div class="card-head">
+                <div class="card-title">
+                    <h2>稅金計算</h2>
+                    <p>輸入金額後，系統會自動換算未稅、稅金、完稅金額。</p>
+                </div>
+                <div class="card-chip">TAX MODULE</div>
+            </div>
 
-  <script>
-    const tester = document.getElementById('tester');
-    const requester = document.getElementById('requester');
-    const clockBtn = document.getElementById('clockBtn');
-    const statusEl = document.getElementById('status');
-    const messageEl = document.getElementById('message');
-    const mapText = document.getElementById('mapText');
-    const showRequesterMap = document.getElementById('showRequesterMap');
-    const showTesterMap = document.getElementById('showTesterMap');
-    const recordsBody = document.getElementById('recordsBody');
-    const exportXlsxBtn = document.getElementById('exportXlsxBtn');
-    const clearRecordsBtn = document.getElementById('clearRecordsBtn');
-    const employeeIdInput = document.getElementById('employeeIdInput');
-    const employeeNameInput = document.getElementById('employeeNameInput');
-    const saveEmployeeBtn = document.getElementById('saveEmployeeBtn');
-    const deleteEmployeeBtn = document.getElementById('deleteEmployeeBtn');
-    const employeesBody = document.getElementById('employeesBody');
-    const requestIdInput = document.getElementById('requestIdInput');
-    const requestNameInput = document.getElementById('requestNameInput');
-    const requestAddressInput = document.getElementById('requestAddressInput');
-    const saveRequestBtn = document.getElementById('saveRequestBtn');
-    const deleteRequestBtn = document.getElementById('deleteRequestBtn');
-    const requestsBody = document.getElementById('requestsBody');
-    const tabs = document.querySelectorAll('.tab');
+            <div class="inputGroup">
+                <label>輸入金額 <span>AMOUNT</span></label>
+                <input type="number" id="taxAmount" placeholder="例如：1000">
+            </div>
 
-    function switchPage(pageId) {
-      document.getElementById('mainPage').style.display = 'none';
-      document.getElementById('employeeManagePage').style.display = 'none';
-      document.getElementById('requestManagePage').style.display = 'none';
-      document.getElementById('recordsPage').style.display = 'none';
+            <div class="inputGroup">
+                <label>金額類型 <span>TYPE</span></label>
+                <select id="taxType">
+                    <option value="before" style="background:#020617;color:#ffffff;">未稅金額</option>
+                    <option value="after" style="background:#020617;color:#ffffff;">完稅金額</option>
+                </select>
+            </div>
 
-      if (!pageId) {
-        document.getElementById('mainPage').style.display = 'block';
-      } else {
-        document.getElementById(pageId).style.display = 'block';
-      }
+            <div class="inputGroup">
+                <label>稅率 (%) <span>RATE</span></label>
+                <input type="number" id="taxRate" value="5">
+            </div>
 
-      tabs.forEach(tab => tab.classList.remove('active'));
+            <button class="actionBtn" onclick="calcTax()">啟動計算</button>
 
-      const activeTab = [...tabs].find(tab => tab.dataset.page === pageId);
-      if (activeTab) {
-        activeTab.classList.add('active');
-      } else {
-        tabs[0].classList.add('active');
-      }
+            <div class="result" id="taxResult">等待輸入資料...</div>
+            <div class="footer-note">預設稅率為 5%，可自行修改。</div>
+        </section>
+
+        <section class="dashboard-card" id="chinesePage">
+            <div class="card-head">
+                <div class="card-title">
+                    <h2>數字轉國字</h2>
+                    <p>將阿拉伯數字轉成國字金額，並自動加上「元」。</p>
+                </div>
+                <div class="card-chip">NUMBER MODULE</div>
+            </div>
+
+            <div class="inputGroup">
+                <label>輸入阿拉伯數字 <span>NUMBER</span></label>
+                <input type="number" id="chineseInput" placeholder="例如：001234">
+            </div>
+
+            <button class="actionBtn" onclick="convertChinese()">啟動轉換</button>
+
+            <div class="result" id="chineseResult">等待輸入數字...</div>
+            <div class="footer-note">前方多餘的零會自動移除。</div>
+        </section>
+
+        <section class="dashboard-card" id="currencyPage">
+            <div class="card-head">
+                <div class="card-title">
+                    <h2>幣值轉換</h2>
+                    <p>手動輸入匯率，可進行美金與台幣互轉。</p>
+                </div>
+                <div class="card-chip">FX MODULE</div>
+            </div>
+
+            <div class="inputGroup">
+                <label>輸入金額 <span>AMOUNT</span></label>
+                <input type="number" id="currencyAmount" placeholder="例如：100">
+            </div>
+
+            <div class="inputGroup">
+                <label>轉換方向 <span>DIRECTION</span></label>
+                <select id="currencyType">
+                    <option value="usdToTwd" style="background:#020617;color:#ffffff;">美金 → 台幣</option>
+                    <option value="twdToUsd" style="background:#020617;color:#ffffff;">台幣 → 美金</option>
+                </select>
+            </div>
+
+            <div class="inputGroup">
+                <label>匯率：1 美金 = 幾台幣 <span>EXCHANGE RATE</span></label>
+                <input type="number" id="exchangeRate" value="32">
+            </div>
+
+            <button class="actionBtn" onclick="convertCurrency()">啟動轉換</button>
+
+            <div class="result" id="currencyResult">等待輸入資料...</div>
+            <div class="footer-note">此為手動匯率，不會自動連線更新。</div>
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+function showPage(id, btn){
+    document.querySelectorAll(".dashboard-card").forEach(page=>{
+        page.classList.remove("active");
+    });
+
+    document.querySelectorAll(".menu button").forEach(button=>{
+        button.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+    btn.classList.add("active");
+}
+
+function updateClock(){
+    const now = new Date();
+    const text = now.toLocaleTimeString("zh-TW", {
+        hour12:false,
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit"
+    });
+    document.getElementById("clock").textContent = text;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* 稅金計算 */
+function calcTax(){
+    let amount = parseFloat(document.getElementById("taxAmount").value);
+    let type = document.getElementById("taxType").value;
+    let rate = parseFloat(document.getElementById("taxRate").value) / 100;
+
+    if(isNaN(amount) || isNaN(rate)){
+        document.getElementById("taxResult").innerHTML = "請輸入正確的金額與稅率";
+        return;
     }
 
-    tabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => {
-        if (index === 0) {
-          switchPage('');
-        } else {
-          switchPage(tab.dataset.page);
+    let before, tax, after;
+
+    if(type === "before"){
+        before = amount;
+        tax = amount * rate;
+        after = before + tax;
+    }else{
+        after = amount;
+        before = after / (1 + rate);
+        tax = after - before;
+    }
+
+    document.getElementById("taxResult").innerHTML =
+    `
+    未稅金額：${before.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元<br>
+    稅金：${tax.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元<br>
+    完稅金額：${after.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元
+    `;
+}
+
+/* 數字轉國字 */
+function numberToChinese(num){
+    if(num === 0) return "零";
+
+    const digits = ["零","壹","貳","參","肆","伍","陸","柒","捌","玖"];
+    const units = ["","拾","佰","仟"];
+    const bigUnits = ["","萬","億","兆"];
+
+    let str = "";
+    let bigIndex = 0;
+
+    while(num > 0){
+        let part = num % 10000;
+        let partStr = "";
+        let zero = false;
+
+        for(let i = 0; i < 4; i++){
+            let d = part % 10;
+
+            if(d === 0){
+                if(partStr !== ""){
+                    zero = true;
+                }
+            }else{
+                if(zero){
+                    partStr = "零" + partStr;
+                    zero = false;
+                }
+
+                partStr = digits[d] + units[i] + partStr;
+            }
+
+            part = Math.floor(part / 10);
         }
-      });
-    });
 
-    let employees = JSON.parse(localStorage.getItem('gpsEmployees') || 'null') || [
-      { id: 'A001', name: '王小明' },
-      { id: 'A002', name: '林小美' }
-    ];
-
-    let requests = JSON.parse(localStorage.getItem('gpsRequests') || 'null') || [
-      { id: 'R001', name: '板橋車站', address: '新北市板橋區縣民大道二段7號' },
-      { id: 'R002', name: '台北車站', address: '台北市中正區北平西路3號' }
-    ];
-
-    let testerLocation = null;
-    let records = JSON.parse(localStorage.getItem('gpsArrivalRecords') || '[]');
-    const arrivalThresholdMeters = 120; // 到達判斷距離，單位：公尺，可自行調整
-
-    function saveEmployees() {
-      localStorage.setItem('gpsEmployees', JSON.stringify(employees));
-    }
-
-    function saveRequests() {
-      localStorage.setItem('gpsRequests', JSON.stringify(requests));
-    }
-
-    function refreshSelects() {
-      tester.innerHTML = '<option value="">—— 請選擇 ——</option>';
-      employees.forEach(emp => {
-        const option = document.createElement('option');
-        option.value = `${emp.id}｜${emp.name}`;
-        option.textContent = `${emp.id}｜${emp.name}`;
-        tester.appendChild(option);
-      });
-
-      requester.innerHTML = '<option value="">—— 請選擇 ——</option>';
-      requests.forEach(req => {
-        const option = document.createElement('option');
-        option.value = `${req.id}｜${req.name}`;
-        option.textContent = `${req.id}｜${req.name}`;
-        requester.appendChild(option);
-      });
-    }
-
-    function renderEmployees() {
-      if (employees.length === 0) {
-        employeesBody.innerHTML = '<tr><td colspan="3">目前沒有員工資料</td></tr>';
-        return;
-      }
-
-      employeesBody.innerHTML = employees.map(emp => `
-        <tr>
-          <td>${emp.id}</td>
-          <td>${emp.name}</td>
-          <td><button class="small-btn" onclick="editEmployee('${emp.id}')">編輯</button></td>
-        </tr>
-      `).join('');
-    }
-
-    function renderRequests() {
-      if (requests.length === 0) {
-        requestsBody.innerHTML = '<tr><td colspan="4">目前沒有需求資料</td></tr>';
-        return;
-      }
-
-      requestsBody.innerHTML = requests.map(req => `
-        <tr>
-          <td>${req.id}</td>
-          <td>${req.name}</td>
-          <td>${req.address || '-'}</td>
-          <td><button class="small-btn" onclick="editRequest('${req.id}')">編輯</button></td>
-        </tr>
-      `).join('');
-    }
-
-    window.editEmployee = function(id) {
-      const emp = employees.find(item => item.id === id);
-      if (!emp) return;
-      employeeIdInput.value = emp.id;
-      employeeNameInput.value = emp.name;
-    };
-
-    window.editRequest = function(id) {
-      const req = requests.find(item => item.id === id);
-      if (!req) return;
-      requestIdInput.value = req.id;
-      requestNameInput.value = req.name;
-      requestAddressInput.value = req.address || '';
-      
-    };
-
-    function checkReady() {
-      if (tester.value && requester.value) {
-        messageEl.textContent = '已選擇人員與任務，可以進行 GPS 打卡';
-      } else {
-        messageEl.textContent = '請先選擇測試者與需求者編號';
-      }
-    }
-
-    function saveRecords() {
-      localStorage.setItem('gpsArrivalRecords', JSON.stringify(records));
-    }
-
-    function renderRecords() {
-      if (records.length === 0) {
-        recordsBody.innerHTML = '<tr><td colspan="8">目前沒有記錄</td></tr>';
-        return;
-      }
-
-      recordsBody.innerHTML = records.map(item => `
-        <tr>
-          <td>${item.time}</td>
-          <td>${item.tester}</td>
-          <td>${item.requester}</td>
-          <td>${item.lat}</td>
-          <td>${item.lng}</td>
-          <td>${item.address || `緯度 ${item.lat}，經度 ${item.lng}`}</td>
-          <td>${item.distance || '-'}</td>
-          <td>${item.status}</td>
-        </tr>
-      `).join('');
-    }
-
-    function addRecord(record) {
-      records.unshift(record);
-      saveRecords();
-      renderRecords();
-    }
-
-    function exportXlsx() {
-      if (records.length === 0) {
-        alert('目前沒有記錄可以匯出');
-        return;
-      }
-
-      if (typeof XLSX === 'undefined') {
-        alert('XLSX 匯出套件尚未載入，請確認網路連線後再試一次');
-        return;
-      }
-
-      const data = records.map(item => ({
-        '時間': item.time,
-        '測試者': item.tester,
-        '需求者': item.requester,
-        '緯度': item.lat,
-        '經度': item.lng,
-        '地址': item.address || `緯度 ${item.lat}，經度 ${item.lng}`,
-        '狀態': item.status
-      }));
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'GPS打卡記錄');
-      XLSX.writeFile(wb, 'GPS打卡記錄.xlsx');
-    }
-
-    function getDistanceMeters(lat1, lng1, lat2, lng2) {
-      const R = 6371000;
-      const toRad = deg => deg * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLng = toRad(lng2 - lng1);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLng / 2) * Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return Math.round(R * c);
-    }
-
-    function showMap(lat, lng, title) {
-      const delta = 0.004;
-      const left = lng - delta;
-      const right = lng + delta;
-      const top = lat + delta;
-      const bottom = lat - delta;
-      const src = `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lng}`;
-      mapText.innerHTML = `<iframe class="map-frame" title="${title}" src="${src}"></iframe>`;
-    }
-
-    function getFallbackAddressFromLatLng(lat, lng) {
-      // 板橋三民路二段附近備援範圍
-      if (lat >= 25.0155 && lat <= 25.0195 && lng >= 121.4785 && lng <= 121.4825) {
-        return '新北市板橋區三民路二段附近';
-      }
-
-      // 板橋車站附近
-      if (lat >= 25.0125 && lat <= 25.0165 && lng >= 121.4615 && lng <= 121.4665) {
-        return '新北市板橋區板橋車站附近';
-      }
-
-      // 台北車站附近
-      if (lat >= 25.0455 && lat <= 25.0505 && lng >= 121.5145 && lng <= 121.5195) {
-        return '台北市中正區台北車站附近';
-      }
-
-      return `緯度 ${lat}，經度 ${lng}`;
-    }
-
-    async function getAddressFromLatLng(lat, lng) {
-      try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=zh-TW`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('reverse geocoding failed');
-        const data = await response.json();
-        return data.display_name || getFallbackAddressFromLatLng(lat, lng);
-      } catch (error) {
-        return getFallbackAddressFromLatLng(lat, lng);
-      }
-    }
-
-    async function getLatLngFromAddress(address, placeName = '') {
-      const keyword = String(address || '').trim();
-      const name = String(placeName || '').trim();
-      const combined = `${name} ${keyword}`;
-
-      // 常用地點備援座標：只有真的查不到地址時才使用
-      const fallbackPlaces = [
-        { keys: ['台北車站', '臺北車站', 'Taipei Main Station'], lat: 25.0478, lng: 121.5170 },
-        { keys: ['板橋車站', 'Banqiao Station'], lat: 25.0143, lng: 121.4639 },
-        // 油庫口蚵仔麵線（板橋文化路總店附近）
-        { keys: ['油庫口蚵仔麵線', '油庫口'], lat: 25.017186, lng: 121.467690 }
-      ];
-
-      const fallback = fallbackPlaces.find(place =>
-        place.keys.some(key => combined.includes(key))
-      );
-
-      const queries = [
-        keyword,
-        `${keyword} 台灣`,
-        `${name} ${keyword} 台灣`,
-        `${name} 新北市 板橋區 台灣`,
-        `${name} 台北市 台灣`,
-        `${name} 臺北市 台灣`
-      ].filter(item => item.trim() !== '');
-
-      for (const query of queries) {
-        try {
-          const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&limit=1&countrycodes=tw&accept-language=zh-TW`;
-          const response = await fetch(url);
-          if (!response.ok) continue;
-          const data = await response.json();
-          if (data && data.length > 0) {
-            return {
-              lat: Number(data[0].lat),
-              lng: Number(data[0].lon),
-              foundBy: query
-            };
-          }
-        } catch (error) {
-          continue;
+        if(partStr !== ""){
+            str = partStr + bigUnits[bigIndex] + str;
         }
-      }
 
-      if (fallback) {
-        return {
-          lat: fallback.lat,
-          lng: fallback.lng,
-          foundBy: '內建座標'
-        };
-      }
-
-      return null;
+        bigIndex++;
+        num = Math.floor(num / 10000);
     }
 
-    tester.addEventListener('change', checkReady);
-    requester.addEventListener('change', checkReady);
+    return str
+        .replace(/零+/g, "零")
+        .replace(/^零+/, "")
+        .replace(/零$/, "");
+}
 
-    saveEmployeeBtn.addEventListener('click', () => {
-      const id = employeeIdInput.value.trim();
-      const name = employeeNameInput.value.trim();
+function convertChinese(){
+    let input = document.getElementById("chineseInput").value.trim();
 
-      if (!id || !name) {
-        alert('請輸入員工編號與員工姓名');
+    if(input === ""){
+        document.getElementById("chineseResult").innerHTML = "請輸入數字";
         return;
-      }
+    }
 
-      const index = employees.findIndex(item => item.id === id);
-      if (index >= 0) {
-        employees[index].name = name;
-      } else {
-        employees.push({ id, name });
-      }
+    let num = parseInt(input, 10);
 
-      saveEmployees();
-      refreshSelects();
-      renderEmployees();
-      employeeIdInput.value = '';
-      employeeNameInput.value = '';
-      checkReady();
-    });
-
-    deleteEmployeeBtn.addEventListener('click', () => {
-      const id = employeeIdInput.value.trim();
-      if (!id) {
-        alert('請先輸入或編輯要刪除的員工編號');
+    if(isNaN(num)){
+        document.getElementById("chineseResult").innerHTML = "請輸入正確的數字";
         return;
-      }
+    }
 
-      if (!confirm(`確定要刪除員工 ${id} 嗎？`)) return;
-      employees = employees.filter(item => item.id !== id);
-      saveEmployees();
-      refreshSelects();
-      renderEmployees();
-      employeeIdInput.value = '';
-      employeeNameInput.value = '';
-      checkReady();
-    });
+    document.getElementById("chineseResult").innerHTML =
+    numberToChinese(num) + "元";
+}
 
-    saveRequestBtn.addEventListener('click', () => {
-      const id = requestIdInput.value.trim();
-      const name = requestNameInput.value.trim();
-      const address = requestAddressInput.value.trim();
-      
+/* 幣值轉換 */
+function convertCurrency(){
+    let amount = parseFloat(document.getElementById("currencyAmount").value);
+    let rate = parseFloat(document.getElementById("exchangeRate").value);
+    let type = document.getElementById("currencyType").value;
 
-      if (!id || !name || !address) {
-        alert('請輸入需求編號、名稱與地址');
+    if(isNaN(amount) || isNaN(rate)){
+        document.getElementById("currencyResult").innerHTML = "請輸入正確的金額與匯率";
         return;
-      }
+    }
 
-      const index = requests.findIndex(item => item.id === id);
-      if (index >= 0) {
-        requests[index] = { id, name, address };
-      } else {
-        requests.push({ id, name, address });
-      }
+    if(type === "usdToTwd"){
+        document.getElementById("currencyResult").innerHTML =
+        `${amount.toLocaleString("zh-TW")} 美金 = ${(amount * rate).toLocaleString("zh-TW", {maximumFractionDigits:2})} 台幣`;
+    }else{
+        document.getElementById("currencyResult").innerHTML =
+        `${amount.toLocaleString("zh-TW")} 台幣 = ${(amount / rate).toLocaleString("zh-TW", {maximumFractionDigits:2})} 美金`;
+    }
+}
+</script>
 
-      saveRequests();
-      refreshSelects();
-      renderRequests();
-      requestIdInput.value = '';
-      requestNameInput.value = '';
-      requestAddressInput.value = '';
-      checkReady();
-    });
-
-    deleteRequestBtn.addEventListener('click', () => {
-      const id = requestIdInput.value.trim();
-      if (!id) {
-        alert('請先輸入或編輯要刪除的需求編號');
-        return;
-      }
-
-      if (!confirm(`確定要刪除需求 ${id} 嗎？`)) return;
-      requests = requests.filter(item => item.id !== id);
-      saveRequests();
-      refreshSelects();
-      renderRequests();
-      requestIdInput.value = '';
-      requestNameInput.value = '';
-      requestAddressInput.value = '';
-      requestLatInput.value = '';
-      requestLngInput.value = '';
-      checkReady();
-    });
-
-    showRequesterMap.addEventListener('click', async () => {
-      if (!requester.value) {
-        mapText.innerHTML = '<div><div class="map-icon">⚠️</div>請先選擇需求者編號</div>';
-        return;
-      }
-
-      const requestId = requester.value.split('｜')[0];
-      const loc = requests.find(item => item.id === requestId);
-      if (!loc) {
-        mapText.innerHTML = '<div><div class="map-icon">⚠️</div>找不到這筆需求資料</div>';
-        return;
-      }
-
-      mapText.innerHTML = '<div><div class="map-icon">🔎</div>正在用地址查詢地圖位置...</div>';
-      const geo = await getLatLngFromAddress(loc.address, loc.name);
-      if (!geo) {
-        mapText.innerHTML = '<div><div class="map-icon">⚠️</div>無法用這個地址找到地圖位置，請確認地址是否完整</div>';
-        return;
-      }
-
-      showMap(geo.lat, geo.lng, loc.name);
-      messageEl.textContent = `需求者位置查詢成功：${geo.foundBy}`;
-    });
-
-    showTesterMap.addEventListener('click', () => {
-      if (!testerLocation) {
-        mapText.innerHTML = '<div><div class="map-icon">⚠️</div>請先按「立即打卡」取得測試者 GPS 位置</div>';
-        return;
-      }
-
-      showMap(testerLocation.lat, testerLocation.lng, '測試者目前位置');
-    });
-
-    clockBtn.addEventListener('click', () => {
-      if (!tester.value || !requester.value) {
-        messageEl.textContent = '⚠️ 請先選擇測試者與需求者編號';
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        messageEl.textContent = '此瀏覽器不支援 GPS 定位';
-        return;
-      }
-
-      statusEl.textContent = '定位中...';
-      messageEl.textContent = '正在取得目前 GPS 位置';
-
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const lat = Number(pos.coords.latitude.toFixed(6));
-          const lng = Number(pos.coords.longitude.toFixed(6));
-          testerLocation = { lat, lng };
-
-          statusEl.textContent = '查詢地址中...';
-          let address = await getAddressFromLatLng(lat, lng);
-
-          const selectedRequestId = requester.value.split('｜')[0];
-          const selectedRequest = requests.find(item => item.id === selectedRequestId);
-          let requestGeo = null;
-
-          if (selectedRequest) {
-            requestGeo = await getLatLngFromAddress(selectedRequest.address, selectedRequest.name);
-          }
-
-          let distanceText = '無法計算距離';
-          let arrivalStatus = '未到達';
-
-          if (requestGeo) {
-            const distance = getDistanceMeters(lat, lng, requestGeo.lat, requestGeo.lng);
-            distanceText = `${distance} 公尺`;
-            arrivalStatus = distance <= arrivalThresholdMeters ? '已到達' : '未到達';
-          }
-
-          statusEl.textContent = arrivalStatus;
-          messageEl.textContent = `打卡成功：${address}｜距離需求者位置：${distanceText}｜${arrivalStatus}`;
-
-          addRecord({
-            time: new Date().toLocaleString('zh-TW', { hour12: false }),
-            tester: tester.value,
-            requester: requester.value,
-            lat,
-            lng,
-            address,
-            distance: distanceText,
-            status: arrivalStatus
-          });
-
-          showMap(lat, lng, '測試者目前位置');
-        },
-        (error) => {
-          statusEl.textContent = '定位失敗';
-
-          if (error.code === 1) {
-            messageEl.textContent = '定位失敗：你尚未允許瀏覽器取得位置權限';
-          } else if (error.code === 2) {
-            messageEl.textContent = '定位失敗：目前無法取得 GPS 位置';
-          } else if (error.code === 3) {
-            messageEl.textContent = '定位失敗：取得位置逾時，請再試一次';
-          } else {
-            messageEl.textContent = '定位失敗：請確認瀏覽器定位權限已開啟';
-          }
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-      );
-    });
-
-    exportXlsxBtn.addEventListener('click', exportXlsx);
-
-    clearRecordsBtn.addEventListener('click', () => {
-      if (!confirm('確定要清空所有測試記錄嗎？')) return;
-      records = [];
-      saveRecords();
-      renderRecords();
-    });
-
-    refreshSelects();
-    renderEmployees();
-    renderRequests();
-    renderRecords();
-  </script>
 </body>
 </html>
