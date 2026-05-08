@@ -1,752 +1,880 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>林咚咚的小工具</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>咚咚的小工具</title>
 <style>
-:root{
-    --bg:#020617;
-    --panel:#0f172a;
-    --red:#ef4444;
-    --red2:#991b1b;
-    --pink:#fecaca;
-    --text:#f8fafc;
-    --muted:#94a3b8;
-    --gold:#fde68a;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Microsoft JhengHei","Segoe UI",sans-serif;
-}
-
+*{box-sizing:border-box}
 body{
-    min-height:100vh;
-    color:var(--text);
-    background:
-        radial-gradient(circle at 20% 0%, rgba(239,68,68,.42), transparent 28%),
-        linear-gradient(160deg,#020617 0%,#111827 48%,#020617 100%);
-    overflow-x:hidden;
+  margin:0;
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",Arial,sans-serif;
+  color:#fff;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(16,185,129,.22),transparent 28%),
+    linear-gradient(rgba(45,212,191,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,212,191,.045) 1px,transparent 1px),
+    #06110f;
+  background-size:auto,34px 34px,34px 34px,auto;
+}
+.wrap{max-width:1050px;margin:auto;padding:18px 14px 90px}
+header{background:rgba(3,12,10,.88);border:1px solid rgba(45,212,191,.18);padding:18px;border-radius:0 0 22px 22px;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#34d399,#0f766e);display:grid;place-items:center;font-weight:900;font-size:20px}
+h1{margin:0;font-size:28px}
+.sub{color:#b7d6cd;margin-top:6px}
+.pills{display:flex;gap:8px;overflow:auto;margin-top:14px}
+.pill{white-space:nowrap;border:1px solid rgba(45,212,191,.42);border-radius:99px;padding:8px 14px;color:#d7fff4;background:rgba(45,212,191,.055);font-weight:800}
+.groupbar,.grid{
+  margin-top:18px;
+  padding:14px;
+  border-radius:22px;
+  border:2px solid rgba(110,231,183,.34);
+  background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(2,6,23,.38));
+}
+.groupbar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.groupbar:before,.grid:before{grid-column:1/-1;font-size:13px;letter-spacing:2px;color:#a7f3d0;font-weight:900}
+.groupbar:before{content:"主選單"}
+.grid:before{content:"功能選單";color:#7dd3fc}
+button{cursor:pointer}
+.groupbtn,.tab{
+  color:#fff;border-radius:15px;border:1px solid rgba(45,212,191,.30);
+  background:rgba(6,16,15,.82);font-weight:900;
+}
+.groupbtn{min-height:50px;font-size:17px}
+.tab{min-height:44px;font-size:15px}
+.groupbtn.active,.tab.active{background:linear-gradient(135deg,#10b981,#0f766e);border-color:#a7f3d0;box-shadow:0 0 14px rgba(16,185,129,.25)}
+.card{
+  margin-top:18px;padding:22px;border-radius:22px;
+  border:1px solid rgba(45,212,191,.26);
+  background:linear-gradient(135deg,rgba(16,33,31,.92),rgba(6,18,16,.94));
+}
+.card h2{margin:0 0 12px;font-size:28px;color:#dffff6}
+.desc{color:#b9d6ce;line-height:1.7}
+label{display:flex;justify-content:space-between;margin:16px 0 8px;color:#a7f3d0;font-weight:800}
+label span{color:#8fb4aa;font-size:13px}
+input,select,textarea{
+  width:100%;padding:14px 15px;border-radius:14px;border:1px solid rgba(45,212,191,.35);
+  background:#06100f;color:#fff;font-size:16px;
+}
+textarea{min-height:120px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.primary,.ghost,.danger{padding:14px;border-radius:14px;color:#fff;font-size:17px;font-weight:900;border:1px solid rgba(255,255,255,.08)}
+.primary{background:linear-gradient(135deg,#10b981,#0f766e)}
+.ghost{background:rgba(255,255,255,.05);border-color:rgba(45,212,191,.28)}
+.danger{background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.38)}
+.result{margin-top:16px;border:1px solid rgba(45,212,191,.22);border-radius:16px;background:rgba(0,0,0,.22);padding:14px;min-height:56px;line-height:1.8}
+.kv{display:grid;gap:10px}
+.kv div{display:flex;justify-content:space-between;background:rgba(255,255,255,.06);border-radius:12px;padding:10px}
+.excel-card{
+  background:linear-gradient(135deg,rgba(72,22,24,.96),rgba(34,9,12,.96));
+  border:1px solid rgba(255,110,110,.42);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:20px;
+}
+.excel-badge{display:inline-block;padding:5px 12px;border-radius:99px;border:1px solid rgba(255,115,115,.5);background:rgba(255,90,90,.12);color:#ffd1d1;font-size:13px}
+.excel-name{font-size:31px!important;color:#ff6666!important;margin:16px 0 18px!important}
+.excel-note{font-size:16px;line-height:1.9;margin-top:12px;color:#fff}
+.excel-formula{background:#020b18;border:1px solid rgba(45,212,191,.52);color:#45ffaf;font-size:18px;padding:15px 18px;border-radius:14px;margin:8px 0 12px;overflow:auto}
+.excel-box{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;color:#ffecec;line-height:1.85;margin-top:8px}
+.top{position:fixed;right:16px;bottom:16px;width:58px;height:58px;border-radius:50%;border:1px solid #a7f3d0;background:linear-gradient(135deg,#10b981,#0f766e);color:#fff;font-weight:900;z-index:99}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.groupbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr}h1{font-size:24px}}
+
+/* ===== 深藍銀灰專業風：穩定不跑版 ===== */
+body{
+  color:#f5f8ff !important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(96,165,250,.16),transparent 28%),
+    radial-gradient(circle at 88% 12%,rgba(148,163,184,.12),transparent 30%),
+    linear-gradient(rgba(148,163,184,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,.035) 1px,transparent 1px),
+    #0b1220 !important;
+  background-size:auto,auto,34px 34px,34px 34px,auto !important;
 }
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background-image:
-        linear-gradient(rgba(248,113,113,.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(248,113,113,.05) 1px, transparent 1px);
-    background-size:28px 28px;
-    pointer-events:none;
+header{
+  background:rgba(15,23,42,.92) !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.25) !important;
 }
 
-.app{
-    position:relative;
-    z-index:1;
-    width:100%;
-    min-height:100vh;
+.logo{
+  background:linear-gradient(135deg,#60a5fa,#334155) !important;
+  box-shadow:0 0 20px rgba(96,165,250,.28) !important;
 }
 
-.topbar{
-    position:sticky;
-    top:0;
-    z-index:10;
-    padding:14px 14px 12px;
-    background:rgba(2,6,23,.88);
-    backdrop-filter:blur(16px);
-    border-bottom:1px solid rgba(248,113,113,.28);
-    box-shadow:0 0 24px rgba(239,68,68,.16);
+.sub{color:#cbd5e1 !important}
+
+.pill{
+  color:#e2e8f0 !important;
+  background:rgba(30,41,59,.65) !important;
+  border:1px solid rgba(148,163,184,.32) !important;
 }
 
-.brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:10px;
+.groupbar,.grid{
+  background:linear-gradient(135deg,rgba(15,23,42,.86),rgba(30,41,59,.72)) !important;
+  border:1px solid rgba(148,163,184,.28) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.22) !important;
 }
 
-.brand-icon{
-    width:38px;
-    height:38px;
-    border-radius:13px;
-    background:linear-gradient(135deg,#ef4444,#7f1d1d);
-    box-shadow:0 0 22px rgba(239,68,68,.75);
-    display:grid;
-    place-items:center;
-    font-size:20px;
+.groupbar:before{color:#bfdbfe !important}
+.grid:before{color:#cbd5e1 !important}
+
+.groupbtn,.tab{
+  background:rgba(15,23,42,.9) !important;
+  border:1px solid rgba(148,163,184,.30) !important;
+  color:#f8fafc !important;
+  box-shadow:none !important;
 }
 
-.brand-title{
-    font-size:18px;
-    font-weight:800;
-    color:#fecaca;
-    text-shadow:0 0 12px rgba(248,113,113,.65);
-}
-
-.status-row{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    padding-bottom:2px;
-}
-
-.status-pill{
-    white-space:nowrap;
-    border:1px solid rgba(248,113,113,.28);
-    background:rgba(15,23,42,.72);
-    padding:7px 10px;
-    border-radius:999px;
-    color:#cbd5e1;
-    font-size:12px;
-}
-
-.dot{
-    display:inline-block;
-    width:8px;
-    height:8px;
-    margin-right:6px;
-    border-radius:50%;
-    background:#22c55e;
-    box-shadow:0 0 12px #22c55e;
-}
-
-.mobile-menu{
-    padding:14px;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-}
-
-.mobile-menu button{
-    min-height:58px;
-    border:none;
-    border-radius:15px;
-    padding:8px 6px;
-    color:#cbd5e1;
-    background:rgba(15,23,42,.74);
-    border:1px solid rgba(255,255,255,.08);
-    font-size:14px;
-    cursor:pointer;
-    box-shadow:inset 0 0 14px rgba(0,0,0,.20);
-}
-
-.mobile-menu button span{
-    display:block;
-    margin-top:3px;
-    font-size:10px;
-    color:#94a3b8;
-}
-
-.mobile-menu button.active{
-    color:white;
-    background:
-        linear-gradient(135deg, rgba(239,68,68,.45), rgba(127,29,29,.24)),
-        rgba(15,23,42,.9);
-    border-color:rgba(248,113,113,.62);
-    box-shadow:0 0 20px rgba(239,68,68,.26);
-}
-
-.main{
-    padding:0 14px 24px;
+.groupbtn.active,.tab.active{
+  background:linear-gradient(135deg,#2563eb,#475569) !important;
+  border-color:rgba(191,219,254,.62) !important;
+  box-shadow:0 0 16px rgba(96,165,250,.22) !important;
 }
 
 .card{
-    display:none;
-    width:100%;
-    max-width:430px;
-    margin:0 auto;
-    padding:18px;
-    border-radius:24px;
-    background:
-        linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
-        rgba(15,23,42,.78);
-    border:1px solid rgba(248,113,113,.26);
-    backdrop-filter:blur(18px);
-    box-shadow:
-        0 0 30px rgba(239,68,68,.18),
-        inset 0 0 24px rgba(255,255,255,.035);
+  background:linear-gradient(135deg,rgba(15,23,42,.94),rgba(2,6,23,.95)) !important;
+  border:1px solid rgba(148,163,184,.24) !important;
+  box-shadow:0 12px 32px rgba(0,0,0,.26) !important;
 }
 
-.card.active{
-    display:block;
-    animation:cardIn .25s ease;
-}
+.card h2{color:#f8fafc !important}
+.desc{color:#cbd5e1 !important}
 
-@keyframes cardIn{
-    from{opacity:0; transform:translateY(8px);}
-    to{opacity:1; transform:translateY(0);}
-}
-
-.card-head{
-    margin-bottom:14px;
-    padding-bottom:12px;
-    border-bottom:1px solid rgba(248,113,113,.20);
-}
-
-.card-head h2{
-    font-size:25px;
-    color:#fecaca;
-    margin-bottom:5px;
-    text-shadow:0 0 14px rgba(248,113,113,.58);
-}
-
-.card-head p{
-    color:#94a3b8;
-    font-size:12px;
-    line-height:1.5;
-}
-
-.inputGroup{
-    margin-bottom:13px;
-}
-
-label{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:7px;
-    color:#fca5a5;
-    font-size:14px;
-}
-
-label small{
-    color:#64748b;
-    font-size:11px;
-}
+label{color:#bfdbfe !important}
+label span{color:#94a3b8 !important}
 
 input,select,textarea{
-    width:100%;
-    padding:0 14px;
-    border-radius:14px;
-    border:1px solid rgba(248,113,113,.24);
-    outline:none;
-    color:#ffffff;
-    font-size:17px;
-    background:
-        linear-gradient(180deg, rgba(2,6,23,.95), rgba(15,23,42,.88));
-    box-shadow:inset 0 0 16px rgba(0,0,0,.45);
+  background:#020617 !important;
+  border:1px solid rgba(148,163,184,.34) !important;
+  color:#f8fafc !important;
 }
 
-input,select{
-    height:48px;
+.primary{
+  background:linear-gradient(135deg,#2563eb,#334155) !important;
+  box-shadow:0 0 14px rgba(37,99,235,.18) !important;
 }
 
-textarea{
-    height:120px;
-    padding-top:12px;
-    line-height:1.6;
-    resize:vertical;
+.ghost{
+  background:rgba(30,41,59,.7) !important;
+  border:1px solid rgba(148,163,184,.28) !important;
 }
 
-input::placeholder,
-textarea::placeholder{
-    color:#475569;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-    border-color:#ef4444;
-    box-shadow:
-        inset 0 0 16px rgba(0,0,0,.45),
-        0 0 16px rgba(239,68,68,.38);
-}
-
-select{
-    background-color:#020617;
-    color:#ffffff;
-}
-
-select option{
-    background:#020617;
-    color:#ffffff;
-}
-
-select option:checked{
-    background:#dc2626;
-    color:#ffffff;
-}
-
-.actionBtn{
-    width:100%;
-    height:50px;
-    margin-top:5px;
-    border:none;
-    border-radius:16px;
-    cursor:pointer;
-    color:white;
-    font-size:18px;
-    font-weight:800;
-    letter-spacing:2px;
-    background:linear-gradient(135deg,#ef4444,#7f1d1d 70%);
-    box-shadow:0 0 24px rgba(239,68,68,.38);
-}
-
-.secondaryBtn{
-    width:100%;
-    height:44px;
-    margin-top:10px;
-    border-radius:14px;
-    border:1px solid rgba(248,113,113,.28);
-    background:rgba(15,23,42,.75);
-    color:#fecaca;
-    font-weight:700;
-    cursor:pointer;
+.danger{
+  background:linear-gradient(135deg,#dc2626,#7f1d1d) !important;
 }
 
 .result{
-    margin-top:15px;
-    min-height:76px;
-    padding:16px;
-    border-radius:18px;
-    color:var(--gold);
-    font-size:18px;
-    line-height:1.7;
-    background:
-        linear-gradient(180deg, rgba(2,6,23,.92), rgba(15,23,42,.72));
-    border:1px solid rgba(250,204,21,.18);
-    box-shadow:inset 0 0 22px rgba(0,0,0,.42);
-    word-break:break-all;
+  background:rgba(2,6,23,.50) !important;
+  border:1px solid rgba(148,163,184,.24) !important;
 }
 
-.note{
-    margin-top:12px;
-    text-align:center;
-    color:#64748b;
-    font-size:12px;
+/* Excel 教學卡片改成藍灰教學風 */
+.excel-card{
+  background:linear-gradient(135deg,rgba(30,41,59,.96),rgba(15,23,42,.96)) !important;
+  border:1px solid rgba(96,165,250,.32) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.24) !important;
 }
 
-/* 抽籤羅盤 */
-.wheel-wrap{
-    display:flex;
-    justify-content:center;
-    margin:12px 0 16px;
+.excel-badge{
+  background:rgba(37,99,235,.16) !important;
+  border:1px solid rgba(96,165,250,.35) !important;
+  color:#bfdbfe !important;
 }
 
-.wheel{
-    width:210px;
-    height:210px;
-    border-radius:50%;
-    position:relative;
-    display:grid;
-    place-items:center;
-    background:
-        conic-gradient(
-            #7f1d1d 0deg 45deg,
-            #111827 45deg 90deg,
-            #dc2626 90deg 135deg,
-            #020617 135deg 180deg,
-            #991b1b 180deg 225deg,
-            #111827 225deg 270deg,
-            #ef4444 270deg 315deg,
-            #020617 315deg 360deg
-        );
-    border:3px solid rgba(248,113,113,.65);
-    box-shadow:
-        0 0 32px rgba(239,68,68,.35),
-        inset 0 0 24px rgba(0,0,0,.5);
-    transition:transform 2.2s cubic-bezier(.12,.72,.18,1);
+.excel-name{
+  color:#93c5fd !important;
+  text-shadow:none !important;
 }
 
-.wheel::before{
-    content:"";
-    position:absolute;
-    inset:24px;
-    border-radius:50%;
-    background:rgba(2,6,23,.86);
-    border:1px solid rgba(248,113,113,.35);
+.excel-note{color:#f8fafc !important}
+
+.excel-formula{
+  background:#020617 !important;
+  border:1px solid rgba(96,165,250,.46) !important;
+  color:#a7f3d0 !important;
 }
 
-.wheel-center{
-    position:relative;
-    z-index:2;
-    width:112px;
-    height:112px;
-    border-radius:50%;
-    display:grid;
-    place-items:center;
-    text-align:center;
-    padding:10px;
-    color:#fde68a;
-    font-weight:900;
-    background:rgba(15,23,42,.96);
-    border:1px solid rgba(250,204,21,.28);
-    box-shadow:0 0 20px rgba(239,68,68,.28);
+.excel-box{
+  background:rgba(15,23,42,.70) !important;
+  border:1px solid rgba(148,163,184,.20) !important;
+  color:#e2e8f0 !important;
 }
 
-.pointer{
-    position:absolute;
-    top:-12px;
-    left:50%;
-    transform:translateX(-50%);
-    width:0;
-    height:0;
-    border-left:13px solid transparent;
-    border-right:13px solid transparent;
-    border-top:24px solid #fde68a;
-    filter:drop-shadow(0 0 8px rgba(253,230,138,.7));
-    z-index:3;
+.top{
+  background:linear-gradient(135deg,#2563eb,#334155) !important;
+  border:1px solid rgba(191,219,254,.55) !important;
+  box-shadow:0 0 18px rgba(96,165,250,.26) !important;
 }
 
-@media(min-width:768px){
-    .card{
-        max-width:460px;
-    }
 
-    .mobile-menu{
-        max-width:460px;
-        margin:0 auto;
-    }
+/* ===== 抽籤羅盤穩定修復版 ===== */
+.roulette-wrap{
+  display:grid;
+  place-items:center;
+  margin:20px 0 10px;
 }
+.roulette-pointer{
+  width:0;
+  height:0;
+  border-left:16px solid transparent;
+  border-right:16px solid transparent;
+  border-top:30px solid #facc15;
+  filter:drop-shadow(0 0 8px rgba(250,204,21,.5));
+  margin-bottom:-6px;
+  z-index:2;
+}
+.roulette-wheel{
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  border:8px solid rgba(191,219,254,.75);
+  background:
+    conic-gradient(
+      #2563eb 0 45deg,
+      #475569 45deg 90deg,
+      #0ea5e9 90deg 135deg,
+      #334155 135deg 180deg,
+      #2563eb 180deg 225deg,
+      #475569 225deg 270deg,
+      #0ea5e9 270deg 315deg,
+      #334155 315deg 360deg
+    );
+  box-shadow:
+    0 0 24px rgba(96,165,250,.32),
+    inset 0 0 28px rgba(0,0,0,.32);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform 2.1s cubic-bezier(.12,.72,.18,1);
+  position:relative;
+}
+.roulette-wheel::before{
+  content:"";
+  position:absolute;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  background:#020617;
+  border:3px solid rgba(191,219,254,.75);
+  box-shadow:0 0 12px rgba(0,0,0,.4);
+}
+.roulette-center{
+  position:relative;
+  z-index:2;
+  width:90px;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#f8fafc;
+  font-size:16px;
+  font-weight:950;
+  line-height:1.25;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  padding:4px;
+}
+.roulette-center small{
+  display:block;
+  font-size:11px;
+  color:#cbd5e1;
+  margin-bottom:2px;
+}
+.roulette-winner{
+  text-align:center;
+  font-size:28px;
+  font-weight:950;
+  color:#93c5fd;
+  margin-top:14px;
+}
+
+
+/* ===== 紫黑電競風（安全版） ===== */
+body{
+  color:#f3e8ff !important;
+  background:
+    radial-gradient(circle at top left,rgba(168,85,247,.18),transparent 30%),
+    radial-gradient(circle at right top,rgba(236,72,153,.12),transparent 30%),
+    linear-gradient(rgba(168,85,247,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(168,85,247,.03) 1px,transparent 1px),
+    #09040f !important;
+  background-size:auto,auto,34px 34px,34px 34px,auto !important;
+}
+
+header{
+  background:rgba(18,10,30,.94)!important;
+  border:1px solid rgba(168,85,247,.18)!important;
+  box-shadow:0 0 24px rgba(168,85,247,.18)!important;
+}
+
+.logo{
+  background:linear-gradient(135deg,#a855f7,#ec4899)!important;
+  color:#fff!important;
+}
+
+.groupbar,.grid,.card{
+  background:linear-gradient(135deg,rgba(24,14,38,.95),rgba(10,6,18,.97))!important;
+  border:1px solid rgba(168,85,247,.14)!important;
+}
+
+.groupbtn,.tab{
+  background:linear-gradient(135deg,#1c102d,#10071c)!important;
+  border:1px solid rgba(168,85,247,.16)!important;
+  color:#faf5ff!important;
+}
+
+.groupbtn.active,.tab.active,.primary,.top{
+  background:linear-gradient(135deg,#a855f7,#7e22ce)!important;
+  color:#fff!important;
+  box-shadow:0 0 18px rgba(168,85,247,.28)!important;
+}
+
+input,select,textarea{
+  background:#06030c!important;
+  border:1px solid rgba(168,85,247,.18)!important;
+  color:#faf5ff!important;
+}
+
+.result,.excel-card,.excel-box{
+  background:rgba(255,255,255,.02)!important;
+  border:1px solid rgba(168,85,247,.10)!important;
+}
+
+.excel-name{
+  color:#d8b4fe!important;
+}
+
+.excel-formula{
+  background:#05030a!important;
+  color:#f0abfc!important;
+}
+
 </style>
 </head>
-
 <body>
+<div class="wrap">
+<header>
+  <div class="brand"><div class="logo">PDF</div><div><h1>咚咚的小工具</h1><div class="sub">手機版｜PDF轉檔＋金額稅金＋國字＋匯率＋抽籤羅盤＋時間加減＋Excel函數</div></div></div>
+  <div class="pills"><div class="pill">Word / Excel / PDF</div><div class="pill">合併・拆分・旋轉</div><div class="pill">JPG / PNG 匯出</div><div class="pill">金額工具</div></div>
+</header>
 
-<div class="app">
-
-    <header class="topbar">
-        <div class="brand">
-            <div class="brand-icon">◈</div>
-            <div class="brand-title">林咚咚的小工具</div>
-        </div>
-
-        <div class="status-row">
-            <div class="status-pill"><span class="dot"></span>ONLINE</div>
-            <div class="status-pill" id="clock">--:--:--</div>
-            <div class="status-pill">TAX / FX / NUMBER / LOTTERY</div>
-        </div>
-    </header>
-
-    <nav class="mobile-menu">
-        <button class="active" onclick="showPage('taxPage', this)">
-            稅金
-            <span>完稅/未稅</span>
-        </button>
-        <button onclick="showPage('chinesePage', this)">
-            國字
-            <span>數字轉換</span>
-        </button>
-        <button onclick="showPage('currencyPage', this)">
-            幣值
-            <span>USD/TWD</span>
-        </button>
-        <button onclick="showPage('lotteryPage', this)">
-            抽籤
-            <span>姓名羅盤</span>
-        </button>
-    </nav>
-
-    <main class="main">
-
-        <section class="card active" id="taxPage">
-            <div class="card-head">
-                <h2>稅金計算</h2>
-                <p>輸入金額後，可計算未稅金額、稅金、完稅金額。</p>
-            </div>
-
-            <div class="inputGroup">
-                <label>輸入金額 <small>AMOUNT</small></label>
-                <input type="number" id="taxAmount" placeholder="例如：1000">
-            </div>
-
-            <div class="inputGroup">
-                <label>金額類型 <small>TYPE</small></label>
-                <select id="taxType">
-                    <option value="before" style="background:#020617;color:#ffffff;">未稅金額</option>
-                    <option value="after" style="background:#020617;color:#ffffff;">完稅金額</option>
-                </select>
-            </div>
-
-            <div class="inputGroup">
-                <label>稅率 (%) <small>RATE</small></label>
-                <input type="number" id="taxRate" value="5">
-            </div>
-
-            <button class="actionBtn" onclick="calcTax()">啟動計算</button>
-
-            <div class="result" id="taxResult">等待輸入資料...</div>
-            <div class="note">預設稅率 5%，可自行修改。</div>
-        </section>
-
-        <section class="card" id="chinesePage">
-            <div class="card-head">
-                <h2>數字轉國字</h2>
-                <p>將阿拉伯數字轉成國字金額，並自動加上「元」。</p>
-            </div>
-
-            <div class="inputGroup">
-                <label>輸入阿拉伯數字 <small>NUMBER</small></label>
-                <input type="number" id="chineseInput" placeholder="例如：001234">
-            </div>
-
-            <button class="actionBtn" onclick="convertChinese()">啟動轉換</button>
-
-            <div class="result" id="chineseResult">等待輸入數字...</div>
-            <div class="note">前方多餘的零會自動移除。</div>
-        </section>
-
-        <section class="card" id="currencyPage">
-            <div class="card-head">
-                <h2>幣值轉換</h2>
-                <p>手動輸入匯率，可進行美金與台幣互轉。</p>
-            </div>
-
-            <div class="inputGroup">
-                <label>輸入金額 <small>AMOUNT</small></label>
-                <input type="number" id="currencyAmount" placeholder="例如：100">
-            </div>
-
-            <div class="inputGroup">
-                <label>轉換方向 <small>DIRECTION</small></label>
-                <select id="currencyType">
-                    <option value="usdToTwd" style="background:#020617;color:#ffffff;">美金 → 台幣</option>
-                    <option value="twdToUsd" style="background:#020617;color:#ffffff;">台幣 → 美金</option>
-                </select>
-            </div>
-
-            <div class="inputGroup">
-                <label>匯率 <small>1 USD = TWD</small></label>
-                <input type="number" id="exchangeRate" value="32">
-            </div>
-
-            <button class="actionBtn" onclick="convertCurrency()">啟動轉換</button>
-
-            <div class="result" id="currencyResult">等待輸入資料...</div>
-            <div class="note">此為手動匯率，不會自動連線更新。</div>
-        </section>
-
-        <section class="card" id="lotteryPage">
-            <div class="card-head">
-                <h2>姓名抽籤隨機羅盤</h2>
-                <p>輸入姓名，每行一個，按下抽籤後系統會隨機選出一位。</p>
-            </div>
-
-            <div class="wheel-wrap">
-                <div class="wheel" id="wheel">
-                    <div class="pointer"></div>
-                    <div class="wheel-center" id="wheelCenter">READY</div>
-                </div>
-            </div>
-
-            <div class="inputGroup">
-                <label>姓名名單 <small>每行一個</small></label>
-                <textarea id="nameList" placeholder="例如：
-小明
-小美
-阿強
-咚咚"></textarea>
-            </div>
-
-            <button class="actionBtn" onclick="drawName()">開始抽籤</button>
-            <button class="secondaryBtn" onclick="clearNames()">清除名單</button>
-
-            <div class="result" id="lotteryResult">等待抽籤...</div>
-            <div class="note">名單會暫存在此頁面，重新整理後仍會保留。</div>
-        </section>
-
-    </main>
+<section class="groupbar">
+  <button class="groupbtn active" id="g_convert" onclick="setGroup('convert')">轉檔工具</button>
+  <button class="groupbtn" id="g_money" onclick="setGroup('money')">金額工具</button>
+  <button class="groupbtn" id="g_excel" onclick="setGroup('excel')">Excel函數</button>
+</section>
+<section class="grid" id="tabs"></section>
+<section class="card" id="panel"></section>
 </div>
+<button class="top" onclick="window.scrollTo({top:0,behavior:'smooth'})">TOP</button>
 
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-function showPage(id, btn){
-    document.querySelectorAll(".card").forEach(page=>{
-        page.classList.remove("active");
-    });
+if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';}
+const $=id=>document.getElementById(id);
 
-    document.querySelectorAll(".mobile-menu button").forEach(button=>{
-        button.classList.remove("active");
-    });
+const groups={
+ convert:[['word_pdf','Word to PDF'],['word_jpg','Word to JPG'],['excel_pdf','Excel to PDF'],['excel_jpg','Excel to JPG'],['excel_sheet_pdf','Excel工作表分開PDF'],['merge','PDF合併'],['rotate','PDF旋轉'],['split','PDF拆分'],['pdf_jpg','PDF to JPG'],['pdf_png','PDF to PNG'],['delete_pages','刪除PDF頁面'],['flatten','壓平PDF'],['repair','修復和還原PDF']],
+ money:[['tax','稅金計算'],['chinese','數字轉國字'],['currency','幣值 USD/TWD'],['roulette','抽籤羅盤'],['timecalc','時間加減']],
+ excel:[['excel_functions','Excel 函數工具書']]
+};
+let currentGroup='convert', active='word_pdf', excelFilter='all';
 
-    document.getElementById(id).classList.add("active");
-    btn.classList.add("active");
+function fileInput(accept,multiple=false){return `<input id="file" type="file" accept="${accept}" ${multiple?'multiple':''}>`}
+function setStatus(msg){const r=$('result'); if(r)r.innerHTML=msg;}
+async function readBuf(file){return await file.arrayBuffer()}
+function saveBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function parsePages(str,max){const out=new Set();(str||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(part=>{if(part.includes('-')){let[a,b]=part.split('-').map(Number);if(a>b)[a,b]=[b,a];for(let i=a;i<=b;i++)if(i>=1&&i<=max)out.add(i-1)}else{let n=Number(part);if(n>=1&&n<=max)out.add(n-1)}});return [...out].sort((a,b)=>a-b)}
+function printHtml(title,body){const w=window.open('','_blank');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:Arial,"Noto Sans TC";padding:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #888;padding:6px}@media print{button{display:none}}
+/* ===== 深藍銀灰專業風：穩定不跑版 ===== */
+body{
+  color:#f5f8ff !important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(96,165,250,.16),transparent 28%),
+    radial-gradient(circle at 88% 12%,rgba(148,163,184,.12),transparent 30%),
+    linear-gradient(rgba(148,163,184,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,.035) 1px,transparent 1px),
+    #0b1220 !important;
+  background-size:auto,auto,34px 34px,34px 34px,auto !important;
 }
 
-function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").textContent = now.toLocaleTimeString("zh-TW", {
-        hour12:false,
-        hour:"2-digit",
-        minute:"2-digit",
-        second:"2-digit"
-    });
+header{
+  background:rgba(15,23,42,.92) !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.25) !important;
 }
-updateClock();
-setInterval(updateClock, 1000);
 
-function calcTax(){
-    let amount = parseFloat(document.getElementById("taxAmount").value);
-    let type = document.getElementById("taxType").value;
-    let rate = parseFloat(document.getElementById("taxRate").value) / 100;
+.logo{
+  background:linear-gradient(135deg,#60a5fa,#334155) !important;
+  box-shadow:0 0 20px rgba(96,165,250,.28) !important;
+}
 
-    if(isNaN(amount) || isNaN(rate)){
-        document.getElementById("taxResult").innerHTML = "請輸入正確的金額與稅率";
-        return;
+.sub{color:#cbd5e1 !important}
+
+.pill{
+  color:#e2e8f0 !important;
+  background:rgba(30,41,59,.65) !important;
+  border:1px solid rgba(148,163,184,.32) !important;
+}
+
+.groupbar,.grid{
+  background:linear-gradient(135deg,rgba(15,23,42,.86),rgba(30,41,59,.72)) !important;
+  border:1px solid rgba(148,163,184,.28) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.22) !important;
+}
+
+.groupbar:before{color:#bfdbfe !important}
+.grid:before{color:#cbd5e1 !important}
+
+.groupbtn,.tab{
+  background:rgba(15,23,42,.9) !important;
+  border:1px solid rgba(148,163,184,.30) !important;
+  color:#f8fafc !important;
+  box-shadow:none !important;
+}
+
+.groupbtn.active,.tab.active{
+  background:linear-gradient(135deg,#2563eb,#475569) !important;
+  border-color:rgba(191,219,254,.62) !important;
+  box-shadow:0 0 16px rgba(96,165,250,.22) !important;
+}
+
+.card{
+  background:linear-gradient(135deg,rgba(15,23,42,.94),rgba(2,6,23,.95)) !important;
+  border:1px solid rgba(148,163,184,.24) !important;
+  box-shadow:0 12px 32px rgba(0,0,0,.26) !important;
+}
+
+.card h2{color:#f8fafc !important}
+.desc{color:#cbd5e1 !important}
+
+label{color:#bfdbfe !important}
+label span{color:#94a3b8 !important}
+
+input,select,textarea{
+  background:#020617 !important;
+  border:1px solid rgba(148,163,184,.34) !important;
+  color:#f8fafc !important;
+}
+
+.primary{
+  background:linear-gradient(135deg,#2563eb,#334155) !important;
+  box-shadow:0 0 14px rgba(37,99,235,.18) !important;
+}
+
+.ghost{
+  background:rgba(30,41,59,.7) !important;
+  border:1px solid rgba(148,163,184,.28) !important;
+}
+
+.danger{
+  background:linear-gradient(135deg,#dc2626,#7f1d1d) !important;
+}
+
+.result{
+  background:rgba(2,6,23,.50) !important;
+  border:1px solid rgba(148,163,184,.24) !important;
+}
+
+/* Excel 教學卡片改成藍灰教學風 */
+.excel-card{
+  background:linear-gradient(135deg,rgba(30,41,59,.96),rgba(15,23,42,.96)) !important;
+  border:1px solid rgba(96,165,250,.32) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.24) !important;
+}
+
+.excel-badge{
+  background:rgba(37,99,235,.16) !important;
+  border:1px solid rgba(96,165,250,.35) !important;
+  color:#bfdbfe !important;
+}
+
+.excel-name{
+  color:#93c5fd !important;
+  text-shadow:none !important;
+}
+
+.excel-note{color:#f8fafc !important}
+
+.excel-formula{
+  background:#020617 !important;
+  border:1px solid rgba(96,165,250,.46) !important;
+  color:#a7f3d0 !important;
+}
+
+.excel-box{
+  background:rgba(15,23,42,.70) !important;
+  border:1px solid rgba(148,163,184,.20) !important;
+  color:#e2e8f0 !important;
+}
+
+.top{
+  background:linear-gradient(135deg,#2563eb,#334155) !important;
+  border:1px solid rgba(191,219,254,.55) !important;
+  box-shadow:0 0 18px rgba(96,165,250,.26) !important;
+}
+
+
+/* ===== 抽籤羅盤穩定修復版 ===== */
+.roulette-wrap{
+  display:grid;
+  place-items:center;
+  margin:20px 0 10px;
+}
+.roulette-pointer{
+  width:0;
+  height:0;
+  border-left:16px solid transparent;
+  border-right:16px solid transparent;
+  border-top:30px solid #facc15;
+  filter:drop-shadow(0 0 8px rgba(250,204,21,.5));
+  margin-bottom:-6px;
+  z-index:2;
+}
+.roulette-wheel{
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  border:8px solid rgba(191,219,254,.75);
+  background:
+    conic-gradient(
+      #2563eb 0 45deg,
+      #475569 45deg 90deg,
+      #0ea5e9 90deg 135deg,
+      #334155 135deg 180deg,
+      #2563eb 180deg 225deg,
+      #475569 225deg 270deg,
+      #0ea5e9 270deg 315deg,
+      #334155 315deg 360deg
+    );
+  box-shadow:
+    0 0 24px rgba(96,165,250,.32),
+    inset 0 0 28px rgba(0,0,0,.32);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform 2.1s cubic-bezier(.12,.72,.18,1);
+  position:relative;
+}
+.roulette-wheel::before{
+  content:"";
+  position:absolute;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  background:#020617;
+  border:3px solid rgba(191,219,254,.75);
+  box-shadow:0 0 12px rgba(0,0,0,.4);
+}
+.roulette-center{
+  position:relative;
+  z-index:2;
+  width:90px;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#f8fafc;
+  font-size:16px;
+  font-weight:950;
+  line-height:1.25;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  padding:4px;
+}
+.roulette-center small{
+  display:block;
+  font-size:11px;
+  color:#cbd5e1;
+  margin-bottom:2px;
+}
+.roulette-winner{
+  text-align:center;
+  font-size:28px;
+  font-weight:950;
+  color:#93c5fd;
+  margin-top:14px;
+}
+
+
+/* ===== 紫黑電競風（安全版） ===== */
+body{
+  color:#f3e8ff !important;
+  background:
+    radial-gradient(circle at top left,rgba(168,85,247,.18),transparent 30%),
+    radial-gradient(circle at right top,rgba(236,72,153,.12),transparent 30%),
+    linear-gradient(rgba(168,85,247,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(168,85,247,.03) 1px,transparent 1px),
+    #09040f !important;
+  background-size:auto,auto,34px 34px,34px 34px,auto !important;
+}
+
+header{
+  background:rgba(18,10,30,.94)!important;
+  border:1px solid rgba(168,85,247,.18)!important;
+  box-shadow:0 0 24px rgba(168,85,247,.18)!important;
+}
+
+.logo{
+  background:linear-gradient(135deg,#a855f7,#ec4899)!important;
+  color:#fff!important;
+}
+
+.groupbar,.grid,.card{
+  background:linear-gradient(135deg,rgba(24,14,38,.95),rgba(10,6,18,.97))!important;
+  border:1px solid rgba(168,85,247,.14)!important;
+}
+
+.groupbtn,.tab{
+  background:linear-gradient(135deg,#1c102d,#10071c)!important;
+  border:1px solid rgba(168,85,247,.16)!important;
+  color:#faf5ff!important;
+}
+
+.groupbtn.active,.tab.active,.primary,.top{
+  background:linear-gradient(135deg,#a855f7,#7e22ce)!important;
+  color:#fff!important;
+  box-shadow:0 0 18px rgba(168,85,247,.28)!important;
+}
+
+input,select,textarea{
+  background:#06030c!important;
+  border:1px solid rgba(168,85,247,.18)!important;
+  color:#faf5ff!important;
+}
+
+.result,.excel-card,.excel-box{
+  background:rgba(255,255,255,.02)!important;
+  border:1px solid rgba(168,85,247,.10)!important;
+}
+
+.excel-name{
+  color:#d8b4fe!important;
+}
+
+.excel-formula{
+  background:#05030a!important;
+  color:#f0abfc!important;
+}
+
+</style></head><body><button onclick="print()">列印 / 另存 PDF</button><hr>${body}</body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
+async function docxHtml(){const f=$('file').files[0];if(!f)throw '請先選擇 Word .docx 檔';const r=await mammoth.convertToHtml({arrayBuffer:await readBuf(f)});return r.value}
+async function excelHtml(){const f=$('file').files[0];if(!f)throw '請先選擇 Excel 檔';const wb=XLSX.read(await readBuf(f),{type:'array'});let html='';wb.SheetNames.forEach(n=>html+=`<h2>${n}</h2>`+XLSX.utils.sheet_to_html(wb.Sheets[n]));return{wb,html}}
+async function htmlToImage(html,type='jpeg',name='image'){
+ const box=document.createElement('div');
+
+ let level=2;
+ const scaleEl=document.getElementById('jpgScale');
+ if(scaleEl){
+   level=parseInt(scaleEl.value,10)||2;
+ }
+
+ const config={
+   2:{scale:2,width:1200,label:'普通解析度'},
+   3:{scale:3,width:1600,label:'高解析度'},
+   4:{scale:4,width:2200,label:'超高解析度'},
+   5:{scale:5,width:2800,label:'列印等級'}
+ };
+
+ const cfg=config[level]||config[2];
+
+ setStatus && setStatus('正在產生 '+cfg.label+' JPG，請稍候...');
+
+ box.style.cssText=
+   'position:fixed;left:-99999px;top:0;' +
+   'width:'+cfg.width+'px;' +
+   'background:#ffffff;color:#000000;padding:24px;' +
+   'font-family:Arial,\"Noto Sans TC\",sans-serif;';
+
+ box.innerHTML=html;
+ document.body.appendChild(box);
+
+ await new Promise(function(resolve){setTimeout(resolve,120);});
+
+ const canvas=await html2canvas(box,{
+   backgroundColor:'#ffffff',
+   scale:cfg.scale,
+   useCORS:true,
+   logging:false,
+   windowWidth:box.scrollWidth,
+   windowHeight:box.scrollHeight
+ });
+
+ document.body.removeChild(box);
+
+ await new Promise(function(resolve){
+   canvas.toBlob(function(blob){
+     saveBlob(blob,`${name}.${type==='jpeg'?'jpg':'png'}`);
+     resolve();
+   },`image/${type}`,0.98);
+ });
+}
+async function renderPdfImages(type){const f=$('file').files[0];if(!f)throw '請先選擇 PDF';const pdf=await pdfjsLib.getDocument({data:await readBuf(f)}).promise;for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p),vp=page.getViewport({scale:2});const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;await new Promise(res=>c.toBlob(b=>{saveBlob(b,`${f.name.replace(/\.pdf$/i,'')}_第${p}頁.${type==='jpeg'?'jpg':'png'}`);res()},`image/${type}`,0.94))}setStatus(`完成：已轉出 ${pdf.numPages} 張圖片。`)}
+async function mergePdf(){const files=[...$('file').files];if(files.length<2)throw '請至少選擇 2 個 PDF';const out=await PDFLib.PDFDocument.create();for(const f of files){const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true});const pages=await out.copyPages(d,d.getPageIndices());pages.forEach(p=>out.addPage(p))}saveBlob(new Blob([await out.save()],{type:'application/pdf'}),'PDF合併.pdf');setStatus('PDF 合併完成。')}
+async function rotatePdf(){const f=$('file').files[0];if(!f)throw '請選擇 PDF';const deg=Number($('degrees').value)||90;const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true});d.getPages().forEach(p=>p.setRotation(PDFLib.degrees((p.getRotation().angle+deg)%360)));saveBlob(new Blob([await d.save()],{type:'application/pdf'}),'PDF旋轉.pdf');setStatus('PDF 旋轉完成。')}
+async function splitPdf(){const f=$('file').files[0];if(!f)throw '請選擇 PDF';const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true});const pages=parsePages($('pages').value,d.getPageCount());if(!pages.length)throw '請輸入頁碼，例如：1-3,5';const out=await PDFLib.PDFDocument.create();const copied=await out.copyPages(d,pages);copied.forEach(p=>out.addPage(p));saveBlob(new Blob([await out.save()],{type:'application/pdf'}),'PDF拆分.pdf');setStatus('已輸出指定頁面。')}
+async function deletePages(){const f=$('file').files[0];if(!f)throw '請選擇 PDF';const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true});parsePages($('pages').value,d.getPageCount()).reverse().forEach(i=>d.removePage(i));saveBlob(new Blob([await d.save()],{type:'application/pdf'}),'刪除頁面後.pdf');setStatus('已刪除指定頁面。')}
+async function flattenPdf(){const f=$('file').files[0];if(!f)throw '請選擇 PDF';const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true});try{d.getForm().flatten()}catch(e){}saveBlob(new Blob([await d.save()],{type:'application/pdf'}),'壓平PDF.pdf');setStatus('已嘗試壓平 PDF。')}
+async function repairPdf(){const f=$('file').files[0];if(!f)throw '請選擇 PDF';const d=await PDFLib.PDFDocument.load(await readBuf(f),{ignoreEncryption:true,updateMetadata:false});saveBlob(new Blob([await d.save()],{type:'application/pdf'}),'修復還原PDF.pdf');setStatus('已重新封裝 PDF。')}
+
+function taxCalc(){const amount=parseFloat($('amount').value)||0,rate=(parseFloat($('rate').value)||0)/100,type=$('amountType').value;let before,tax,total;if(type==='before'){before=amount;tax=amount*rate;total=before+tax}else{total=amount;before=rate?amount/(1+rate):amount;tax=total-before}$('result').innerHTML=`<div class="kv"><div><b>未稅金額</b><span>${before.toFixed(2)}</span></div><div><b>稅金</b><span>${tax.toFixed(2)}</span></div><div><b>完稅金額</b><span>${total.toFixed(2)}</span></div></div>`}
+function toChineseMoney(num){num=String(num).replace(/,/g,'');if(!num||isNaN(num))return'';const N=['零','壹','貳','參','肆','伍','陸','柒','捌','玖'],U=['','拾','佰','仟'],G=['','萬','億','兆'];let[int,dec='']=Number(num).toFixed(2).split('.');int=String(parseInt(int,10));let res='',groups=[];while(int.length){groups.unshift(int.slice(-4));int=int.slice(0,-4)}groups.forEach((g,gi)=>{let part='',zero=false;[...g.padStart(4,'0')].forEach((d,i)=>{let n=+d,pos=3-i;if(n){if(zero)part+='零';part+=N[n]+U[pos];zero=false}else if(part)zero=true});if(part)res+=part+G[groups.length-1-gi];else if(res&&!res.endsWith('零'))res+='零'});res=res.replace(/零+/g,'零').replace(/零$/,'')||'零';const j=+dec[0],f=+dec[1];return res+'元'+(j?N[j]+'角':'')+(f?N[f]+'分':'整')}
+function chineseCalc(){$('result').innerHTML=`<b>${toChineseMoney($('num').value)}</b>`}
+function currencyCalc(){const a=parseFloat($('money').value)||0,r=parseFloat($('fx').value)||0,dir=$('dir').value;const v=dir==='usd_twd'?a*r:(r?a/r:0);$('result').innerHTML=`<b>${v.toFixed(2)}</b> ${dir==='usd_twd'?'TWD':'USD'}`}
+var rouletteDeg = 0;
+function roulette(){
+  var namesEl = document.getElementById('names');
+  var resultEl = document.getElementById('result');
+  var wheel = document.getElementById('wheel');
+  var wheelName = document.getElementById('wheelName');
+
+  if(!namesEl){
+    alert('找不到姓名輸入框');
+    return;
+  }
+
+  var arr = namesEl.value
+    .split(/\n|,|，/)
+    .map(function(s){ return s.trim(); })
+    .filter(function(s){ return s.length > 0; });
+
+  if(arr.length === 0){
+    if(resultEl) resultEl.innerHTML = '請輸入姓名，每行一個。';
+    if(wheelName) wheelName.innerHTML = 'READY';
+    return;
+  }
+
+  var pick = arr[Math.floor(Math.random() * arr.length)];
+  rouletteDeg = rouletteDeg + 1440 + Math.floor(Math.random() * 720);
+
+  if(wheelName){
+    wheelName.innerHTML = '<div><small>抽籤中</small>轉動中</div>';
+  }
+
+  if(resultEl){
+    resultEl.innerHTML = '羅盤轉動中...';
+  }
+
+  if(wheel){
+    wheel.style.transform = 'rotate(' + rouletteDeg + 'deg)';
+  }
+
+  setTimeout(function(){
+    if(wheelName){
+      wheelName.innerHTML = '<div><small>得獎者</small>' + pick + '</div>';
     }
-
-    let before, tax, after;
-
-    if(type === "before"){
-        before = amount;
-        tax = amount * rate;
-        after = before + tax;
-    }else{
-        after = amount;
-        before = after / (1 + rate);
-        tax = after - before;
+    if(resultEl){
+      resultEl.innerHTML =
+        '<div class="roulette-winner">🎯 ' + pick + '</div>' +
+        '<div style="text-align:center;color:#cbd5e1">名單共 ' + arr.length + ' 人</div>';
     }
-
-    document.getElementById("taxResult").innerHTML =
-    `
-    未稅金額：${before.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元<br>
-    稅金：${tax.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元<br>
-    完稅金額：${after.toLocaleString("zh-TW", {maximumFractionDigits:0})} 元
-    `;
+  }, 2150);
 }
 
-function numberToChinese(num){
-    if(num === 0) return "零";
+function timeCalc(){const base=$('baseTime').value||'00:00',h=Number($('hh').value)||0,m=Number($('mm').value)||0,op=$('op').value;let[bh,bm]=base.split(':').map(Number);let total=bh*60+bm+(op==='add'?1:-1)*(h*60+m);total=((total%(24*60))+(24*60))%(24*60);$('result').innerHTML=`<b>${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}</b>`}
 
-    const digits = ["零","壹","貳","參","肆","伍","陸","柒","捌","玖"];
-    const units = ["","拾","佰","仟"];
-    const bigUnits = ["","萬","億","兆"];
+const excelFunctions=[
+{name:'SUM',cat:'math',use:'加總指定範圍內所有數字。',detail:'統計本月所有訂單金額，快速算出總收入。',data:'B2=1000、B3=2500、B4=1500。',example:'=SUM(B2:B20)',meaning:'B2:B20 是訂單金額範圍，SUM 會把這個範圍內的數字全部加起來。',steps:'1. 點選要放結果的儲存格。\n2. 輸入 =SUM(B2:B20)。\n3. 按 Enter。\n4. Excel 會自動把 B2 到 B20 的金額加總。',result:'1000 + 2500 + 1500 = 5000。',tip:'常見用途：銷售總額、支出總額、庫存數量、薪資加總。\n注意：如果數字被存成文字，SUM 可能加不到。'},
+{name:'SUMIF',cat:'math',use:'符合單一條件才加總。',detail:'統計「台北店」的總銷售額，只加總台北店，不加其他分店。',data:'A2=台北店、B2=3000；A3=台中店、B3=4000；A4=台北店、B4=2000。',example:'=SUMIF(A2:A20,"台北店",B2:B20)',meaning:'A2:A20 是分店名稱；"台北店" 是條件；B2:B20 是銷售金額。只有 A欄等於台北店的那一列，B欄金額才會被加總。',steps:'1. A欄準備分店名稱。\n2. B欄準備銷售金額。\n3. 在結果儲存格輸入公式。\n4. Excel 會只抓台北店的金額。',result:'台北店 3000 + 台北店 2000 = 5000。台中店 4000 不會被算進去。',tip:'常見用途：分店業績、部門費用、商品分類加總。\n注意：條件文字要用雙引號。'},
+{name:'SUMIFS',cat:'math',use:'符合多個條件才加總。',detail:'統計「台北」且「已付款」的訂單金額。',data:'A2=台北、B2=已付款、D2=1200；A3=台北、B3=未付款、D3=900；A4=台北、B4=已付款、D4=800。',example:'=SUMIFS(D2:D100,A2:A100,"台北",B2:B100,"已付款")',meaning:'D2:D100 是要加總的金額；A欄要等於台北；B欄要等於已付款。同一列必須兩個條件都符合，D欄金額才會被加進去。',steps:'1. D欄放訂單金額。\n2. A欄放地區。\n3. B欄放付款狀態。\n4. 輸入 SUMIFS 公式。',result:'D2 1200 + D4 800 = 2000。D3 未付款，所以不算。',tip:'常見用途：指定地區＋指定狀態、指定月份＋指定人員。\n注意：SUMIFS 第一個參數是要加總的範圍。'},
+{name:'AVERAGE',cat:'math',use:'計算平均值。',detail:'統計員工平均處理件數。',data:'C2=10、C3=20、C4=30。',example:'=AVERAGE(C2:C20)',meaning:'C2:C20 是每位員工的處理件數，AVERAGE 會把所有數字加總後除以數字筆數。',steps:'1. C欄輸入每個人的件數。\n2. 在結果格輸入公式。\n3. Excel 會計算平均。',result:'(10+20+30)/3 = 20。',tip:'常見用途：平均分數、平均業績、平均工時。\n注意：空白不列入平均，但 0 會列入。'},
+{name:'COUNTIF',cat:'math',use:'計算符合單一條件的筆數。',detail:'統計案件狀態為「已完成」的數量。',data:'C2=已完成、C3=處理中、C4=已完成。',example:'=COUNTIF(C2:C100,"已完成")',meaning:'C2:C100 是案件狀態範圍，只要內容等於已完成，就計算 1 筆。',steps:'1. C欄放案件狀態。\n2. 輸入公式。\n3. Excel 會統計已完成出現幾次。',result:'已完成出現 2 次，結果為 2。',tip:'常見用途：統計出勤、訂單狀態、指定姓名出現次數。'},
+{name:'IF',cat:'logic',use:'依條件顯示不同結果。',detail:'判斷學生成績是否及格。',data:'C2=75 或 C2=50。',example:'=IF(C2>=60,"及格","不及格")',meaning:'如果 C2 大於等於 60，就顯示「及格」；如果小於 60，就顯示「不及格」。',steps:'1. C欄放成績。\n2. 在 D2 輸入公式。\n3. 往下填滿其他列。',result:'C2=75，結果為及格；C2=50，結果為不及格。',tip:'常見用途：成績判斷、是否達標、訂單是否完成。'},
+{name:'IFS',cat:'logic',use:'多條件分級判斷。',detail:'依照成績自動判斷優秀、良好、及格、不及格。',data:'C2=85。',example:'=IFS(C2>=90,"優秀",C2>=80,"良好",C2>=60,"及格",TRUE,"不及格")',meaning:'Excel 會從左到右檢查條件，第一個符合的條件就顯示對應結果。TRUE 代表以上都不符合時，顯示不及格。',steps:'1. 先寫最高標準，例如 >=90。\n2. 再往下寫 >=80、>=60。\n3. 最後加 TRUE 當其他情況。',result:'C2=85，符合 >=80，所以結果為良好。',tip:'常見用途：成績等級、績效分級、客戶等級。\n注意：條件順序要從高到低。'},
+{name:'VLOOKUP',cat:'lookup',use:'用左邊第一欄查資料，回傳右邊欄位。',detail:'輸入商品編號，自動帶出商品價格。',data:'A2=P001；F欄有 P001；G欄價格是 250。',example:'=VLOOKUP(A2,F:G,2,FALSE)',meaning:'A2 是商品編號；F:G 是商品資料表；2 代表回傳第 2 欄，也就是 G欄；FALSE 代表精準比對。',steps:'1. A2 輸入商品編號。\n2. F欄放商品編號。\n3. G欄放商品價格。\n4. 輸入 VLOOKUP 公式。\n5. Excel 到 F欄找 P001，找到後回傳 G欄價格。',result:'A2=P001，G欄價格是 250，結果為 250。',tip:'常見用途：商品查價、員工資料查詢、客戶資料帶入。\n注意：VLOOKUP 只能從查詢範圍最左欄往右查。'},
+{name:'XLOOKUP',cat:'lookup',use:'新版查詢函數，可往左查也可往右查。',detail:'用商品編號查商品名稱，找不到就顯示查無資料。',data:'A2=P001；F欄 P001 對應 G欄滑鼠。',example:'=XLOOKUP(A2,F:F,G:G,"查無資料")',meaning:'A2 是查詢值；F:F 是尋找位置；G:G 是回傳資料；查不到就顯示「查無資料」。',steps:'1. A2 輸入商品編號。\n2. F欄放商品編號。\n3. G欄放商品名稱。\n4. 輸入公式。',result:'A2=P001，結果為滑鼠。',tip:'常見用途：資料查詢、名單對照、商品資料帶入。\n注意：新版 Excel 才有 XLOOKUP。'},
+{name:'LEFT',cat:'text',use:'從左邊取指定字數。',detail:'從員工編號取出部門代碼。',data:'A2=EMP001。',example:'=LEFT(A2,3)',meaning:'A2 是文字來源，3 代表從左邊取 3 個字。',steps:'1. A2 放員工編號。\n2. 輸入公式。\n3. Excel 從左邊取出 3 個字。',result:'EMP001 結果為 EMP。',tip:'常見用途：取代碼、取身分證前幾碼、取產品分類。'},
+{name:'RIGHT',cat:'text',use:'從右邊取指定字數。',detail:'取手機號碼最後四碼。',data:'A2=0912345678。',example:'=RIGHT(A2,4)',meaning:'A2 是文字來源，4 代表從右邊取 4 個字。',steps:'1. A2 放手機號碼。\n2. 輸入公式。\n3. Excel 從右邊取出 4 個字。',result:'0912345678 結果為 5678。',tip:'常見用途：尾碼比對、電話遮蔽、流水號整理。'},
+{name:'MID',cat:'text',use:'從中間指定位置取文字。',detail:'從產品代碼取出中間的數字。',data:'A2=ABC12345。',example:'=MID(A2,4,3)',meaning:'A2 是文字來源，4 代表從第 4 個字開始，3 代表取 3 個字。',steps:'1. A2 放產品代碼。\n2. 輸入公式。\n3. Excel 從第 4 個字開始取 3 個字。',result:'ABC12345 結果為 123。',tip:'常見用途：拆代碼、取日期碼、取身分證中間欄位。'},
+{name:'LEN',cat:'text',use:'計算文字長度。',detail:'檢查手機號碼是否為 10 碼。',data:'A2=0912345678。',example:'=LEN(A2)',meaning:'LEN 會計算 A2 內有幾個字元，包含空格。',steps:'1. A2 放要檢查的文字。\n2. 輸入公式。\n3. Excel 回傳字元數。',result:'0912345678 結果為 10。',tip:'常見用途：檢查電話、身分證、編號長度。\n注意：空格也會被算進去。'},
+{name:'TODAY',cat:'date',use:'自動顯示今天日期。',detail:'每日報表自動顯示今天日期，不用每天手動改。',data:'不需要任何資料欄位。',example:'=TODAY()',meaning:'TODAY() 會讀取電腦目前日期，只顯示日期，不顯示時間。',steps:'1. 點選要顯示日期的儲存格。\n2. 輸入 =TODAY()。\n3. 按 Enter。\n4. 之後重新開啟或重新計算時，日期會更新。',result:'如果今天是 2026/05/09，結果為 2026/05/09。',tip:'常見用途：每日報表、簽到表、到期日計算。\n注意：它會更新，不適合當固定日期紀錄。'},
+{name:'NOW',cat:'date',use:'自動顯示現在日期與時間。',detail:'顯示報表最後更新時間。',data:'不需要任何資料欄位。',example:'=NOW()',meaning:'NOW() 會讀取目前電腦日期與時間。每次重新計算、重新開啟檔案時，時間可能會更新。',steps:'1. 點選要顯示更新時間的儲存格。\n2. 輸入 =NOW()。\n3. 按 Enter。\n4. Excel 會顯示目前日期與時間。',result:'現在是 2026/05/09 14:30，結果為 2026/05/09 14:30。',tip:'常見用途：更新時間、列印時間、報表產生時間。\n注意：NOW() 不是固定時間戳，會自動變動。'},
+{name:'DATEDIF',cat:'date',use:'計算兩個日期差距。',detail:'計算合約天數、請假天數、年資。',data:'A2=2026/05/01，B2=2026/05/20。',example:'=DATEDIF(A2,B2,"D")',meaning:'A2 是開始日，B2 是結束日，"D" 代表用天數計算。也可以改成 "M" 算月數，"Y" 算年數。',steps:'1. A2 放開始日期。\n2. B2 放結束日期。\n3. 輸入公式。\n4. Excel 計算中間差幾天。',result:'2026/05/01 到 2026/05/20，相差 19 天，結果為 19。',tip:'常見用途：年資、天數、到期日、請假天數。\n注意：DATEDIF 有時不會跳出提示，但可以正常使用。'}
+];
 
-    let str = "";
-    let bigIndex = 0;
-
-    while(num > 0){
-        let part = num % 10000;
-        let partStr = "";
-        let zero = false;
-
-        for(let i = 0; i < 4; i++){
-            let d = part % 10;
-
-            if(d === 0){
-                if(partStr !== ""){
-                    zero = true;
-                }
-            }else{
-                if(zero){
-                    partStr = "零" + partStr;
-                    zero = false;
-                }
-                partStr = digits[d] + units[i] + partStr;
-            }
-
-            part = Math.floor(part / 10);
-        }
-
-        if(partStr !== ""){
-            str = partStr + bigUnits[bigIndex] + str;
-        }
-
-        bigIndex++;
-        num = Math.floor(num / 10000);
-    }
-
-    return str
-        .replace(/零+/g, "零")
-        .replace(/^零+/, "")
-        .replace(/零$/, "");
+function catName(cat){return {math:'加總統計',logic:'邏輯判斷',lookup:'查詢比對',text:'文字處理',date:'日期時間'}[cat]||cat}
+function filterExcel(type){excelFilter=type;renderExcelFunctions()}
+function renderExcelFunctions(){
+ const box=$('excelList'); if(!box)return;
+ const q=($('excelSearch')?.value||'').toUpperCase();
+ const arr=excelFunctions.filter(f=>(excelFilter==='all'||f.cat===excelFilter)&&(!q||f.name.includes(q)||f.use.includes(q)||f.detail.includes(q)));
+ box.innerHTML=arr.map(f=>`
+ <div class="excel-card">
+  <div class="excel-badge">${catName(f.cat)}</div>
+  <h2 class="excel-name">${f.name}</h2>
+  <div class="excel-note"><b>用途：</b>${f.use}</div>
+  <div class="excel-note"><b>實際情境：</b>${f.detail}</div>
+  <div class="excel-note"><b>範例資料：</b>${f.data}</div>
+  <div class="excel-note"><b>公式：</b></div>
+  <div class="excel-formula">${f.example}</div>
+  <div class="excel-note"><b>公式意思：</b>${f.meaning}</div>
+  <div class="excel-note"><b>操作步驟：</b></div>
+  <div class="excel-box">${f.steps.replaceAll('\\n','<br>')}</div>
+  <div class="excel-note"><b>範例結果：</b>${f.result}</div>
+  <div class="excel-note"><b>常見用途與注意事項：</b></div>
+  <div class="excel-box">${f.tip.replaceAll('\\n','<br>')}</div>
+ </div>`).join('');
+ if(!arr.length)box.innerHTML='查無符合函數';
 }
 
-function convertChinese(){
-    let input = document.getElementById("chineseInput").value.trim();
+const templates={
+ word_pdf:`<h2>Word to PDF</h2><p class="desc">支援 .docx，會開啟列印視窗，請選「另存為 PDF」。</p>${fileInput('.docx')}<div class="actions"><button class="primary" onclick="run('word_pdf')">轉成 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ word_jpg:`<h2>Word to JPG</h2><p class="desc">將 .docx 內容轉成 JPG。</p>${fileInput('.docx')}<div class="actions"><button class="primary" onclick="run('word_jpg')">轉成 JPG</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ excel_pdf:`<h2>Excel to PDF</h2><p class="desc">將 Excel 轉成可列印頁面，再另存 PDF。</p>${fileInput('.xlsx,.xls,.csv')}<div class="actions"><button class="primary" onclick="run('excel_pdf')">轉成 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ excel_jpg:`<h2>Excel to JPG</h2><p class="desc">將 Excel 表格轉成 JPG 圖片。可選擇解析度，解析度越高，轉檔時間越久。</p>${fileInput('.xlsx,.xls,.csv')}<label>JPG 解析度<span>QUALITY</span></label><select id="jpgScale"><option value="2">普通解析度</option><option value="3">高解析度</option><option value="4">超高解析度</option><option value="5">列印等級</option></select><div style="margin-top:8px;color:#cbd5e1;font-size:13px;">普通最快；列印等級較慢，但畫質較清楚。</div><div class="actions"><button class="primary" onclick="run('excel_jpg')">轉成 JPG</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ excel_sheet_pdf:`<h2>Excel 工作表分開 PDF</h2><p class="desc">每個工作表各開一個列印頁，可分別另存 PDF。</p>${fileInput('.xlsx,.xls,.csv')}<div class="actions"><button class="primary" onclick="run('excel_sheet_pdf')">分開 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ merge:`<h2>PDF 合併</h2>${fileInput('.pdf',true)}<div class="actions"><button class="primary" onclick="run('merge')">合併 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ rotate:`<h2>PDF 旋轉</h2>${fileInput('.pdf')}<label>旋轉角度<span>DEGREE</span></label><select id="degrees"><option value="90">90度</option><option value="180">180度</option><option value="270">270度</option></select><div class="actions"><button class="primary" onclick="run('rotate')">旋轉 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ split:`<h2>PDF 拆分</h2>${fileInput('.pdf')}<label>頁碼<span>PAGES</span></label><input id="pages" placeholder="例如：1-3,5"><div class="actions"><button class="primary" onclick="run('split')">拆分 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ pdf_jpg:`<h2>PDF to JPG</h2>${fileInput('.pdf')}<div class="actions"><button class="primary" onclick="run('pdf_jpg')">轉成 JPG</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ pdf_png:`<h2>PDF to PNG</h2>${fileInput('.pdf')}<div class="actions"><button class="primary" onclick="run('pdf_png')">轉成 PNG</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ delete_pages:`<h2>刪除 PDF 頁面</h2>${fileInput('.pdf')}<label>刪除頁碼<span>PAGES</span></label><input id="pages" placeholder="例如：2,4-6"><div class="actions"><button class="danger" onclick="run('delete_pages')">刪除頁面</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ flatten:`<h2>壓平 PDF</h2>${fileInput('.pdf')}<div class="actions"><button class="primary" onclick="run('flatten')">壓平 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ repair:`<h2>修復和還原 PDF</h2>${fileInput('.pdf')}<div class="actions"><button class="primary" onclick="run('repair')">修復 PDF</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ tax:`<h2>稅金計算</h2><label>輸入金額<span>AMOUNT</span></label><input id="amount" type="number" placeholder="例如：1000"><label>金額類型<span>TYPE</span></label><select id="amountType"><option value="before">未稅金額</option><option value="after">完稅金額</option></select><label>稅率 (%)<span>RATE</span></label><input id="rate" type="number" value="5"><div class="actions"><button class="primary" onclick="taxCalc()">啟動計算</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ chinese:`<h2>數字轉國字</h2><label>阿拉伯數字<span>NUMBER</span></label><input id="num" type="number" placeholder="例如：123456"><div class="actions"><button class="primary" onclick="chineseCalc()">轉成國字</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ currency:`<h2>幣值 USD/TWD</h2><label>金額<span>AMOUNT</span></label><input id="money" type="number" placeholder="例如：100"><label>方向<span>TYPE</span></label><select id="dir"><option value="usd_twd">美金 USD → 台幣 TWD</option><option value="twd_usd">台幣 TWD → 美金 USD</option></select><label>匯率<span>RATE</span></label><input id="fx" type="number" value="32" step="0.001"><div class="actions"><button class="primary" onclick="currencyCalc()">換算</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ roulette:`<h2>姓名抽籤隨機羅盤</h2><p class="desc">每行輸入一個姓名，按下開始抽籤後，羅盤會旋轉並把得獎者顯示在羅盤中間。</p><label>姓名名單<span>NAMES</span></label><textarea id="names" placeholder="小明&#10;小美&#10;阿強"></textarea><div class="roulette-wrap"><div class="roulette-pointer"></div><div id="wheel" class="roulette-wheel"><div id="wheelName" class="roulette-center">READY</div></div></div><div class="actions"><button class="primary" type="button" onclick="roulette()">開始抽籤</button><button class="ghost" type="button" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ timecalc:`<h2>時間加減計算</h2><label>基準時間<span>TIME</span></label><input id="baseTime" type="time" value="12:00"><label>加或減<span>OP</span></label><select id="op"><option value="add">加上</option><option value="sub">減去</option></select><label>小時<span>HOUR</span></label><input id="hh" type="number" value="0"><label>分鐘<span>MIN</span></label><input id="mm" type="number" value="30"><div class="actions"><button class="primary" onclick="timeCalc()">計算時間</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
+ excel_functions:`<h2>Excel 函數工具書</h2><p class="desc">這版已重新製作，避免 undefined 與整頁故障。每個函數都有實際情境、公式意思、操作步驟與範例結果。</p><label>搜尋函數<span>SEARCH</span></label><input id="excelSearch" placeholder="例如：SUM、IF、VLOOKUP" oninput="renderExcelFunctions()"><div class="actions"><button class="primary" onclick="filterExcel('all')">全部</button><button class="ghost" onclick="filterExcel('math')">加總統計</button></div><div class="actions"><button class="ghost" onclick="filterExcel('logic')">邏輯判斷</button><button class="ghost" onclick="filterExcel('lookup')">查詢比對</button></div><div class="actions"><button class="ghost" onclick="filterExcel('text')">文字處理</button><button class="ghost" onclick="filterExcel('date')">日期時間</button></div><div id="excelList" class="result"></div>`
+};
 
-    if(input === ""){
-        document.getElementById("chineseResult").innerHTML = "請輸入數字";
-        return;
-    }
-
-    let num = parseInt(input, 10);
-
-    if(isNaN(num)){
-        document.getElementById("chineseResult").innerHTML = "請輸入正確的數字";
-        return;
-    }
-
-    document.getElementById("chineseResult").innerHTML = numberToChinese(num) + "元";
+function setGroup(g){currentGroup=g;active=groups[g][0][0];render()}
+function renderTabs(){
+ ['convert','money','excel'].forEach(g=>$('g_'+g).classList.toggle('active',currentGroup===g));
+ $('tabs').innerHTML=groups[currentGroup].map(([id,name])=>`<button class="tab ${active===id?'active':''}" onclick="active='${id}';render(false)">${name}</button>`).join('');
 }
+function render(jump=true){renderTabs();$('panel').innerHTML=templates[active];if(active==='excel_functions')setTimeout(renderExcelFunctions,0);if(jump)window.scrollTo({top:0,behavior:'smooth'})}
 
-function convertCurrency(){
-    let amount = parseFloat(document.getElementById("currencyAmount").value);
-    let rate = parseFloat(document.getElementById("exchangeRate").value);
-    let type = document.getElementById("currencyType").value;
-
-    if(isNaN(amount) || isNaN(rate)){
-        document.getElementById("currencyResult").innerHTML = "請輸入正確的金額與匯率";
-        return;
-    }
-
-    if(type === "usdToTwd"){
-        document.getElementById("currencyResult").innerHTML =
-        `${amount.toLocaleString("zh-TW")} 美金 = ${(amount * rate).toLocaleString("zh-TW", {maximumFractionDigits:2})} 台幣`;
-    }else{
-        document.getElementById("currencyResult").innerHTML =
-        `${amount.toLocaleString("zh-TW")} 台幣 = ${(amount / rate).toLocaleString("zh-TW", {maximumFractionDigits:2})} 美金`;
-    }
+async function run(kind){
+ try{
+  setStatus('處理中...');
+  if(kind==='word_pdf'){const html=await docxHtml();printHtml('Word to PDF',html);setStatus('已開啟列印視窗，請另存 PDF。')}
+  if(kind==='word_jpg'){await htmlToImage(await docxHtml(),'jpeg','word轉jpg');setStatus('已轉成 JPG。')}
+  if(kind==='excel_pdf'){const {html}=await excelHtml();printHtml('Excel to PDF',html);setStatus('已開啟列印視窗，請另存 PDF。')}
+  if(kind==='excel_jpg'){const {html}=await excelHtml();await htmlToImage(html,'jpeg','excel轉jpg');setStatus('已轉成 JPG。')}
+  if(kind==='excel_sheet_pdf'){const {wb}=await excelHtml();wb.SheetNames.forEach(n=>printHtml(n,XLSX.utils.sheet_to_html(wb.Sheets[n])));setStatus('已依工作表開啟列印頁。')}
+  if(kind==='merge')await mergePdf();
+  if(kind==='rotate')await rotatePdf();
+  if(kind==='split')await splitPdf();
+  if(kind==='pdf_jpg')await renderPdfImages('jpeg');
+  if(kind==='pdf_png')await renderPdfImages('png');
+  if(kind==='delete_pages')await deletePages();
+  if(kind==='flatten')await flattenPdf();
+  if(kind==='repair')await repairPdf();
+ }catch(e){setStatus('⚠️ '+(e.message||e))}
 }
-
-/* 姓名抽籤 */
-const nameListBox = document.getElementById("nameList");
-const savedNames = localStorage.getItem("lotteryNames");
-if(savedNames){
-    nameListBox.value = savedNames;
-}
-
-nameListBox.addEventListener("input", function(){
-    localStorage.setItem("lotteryNames", nameListBox.value);
-});
-
-let spinDegree = 0;
-
-function getNames(){
-    return nameListBox.value
-        .split(/\n|,|，/)
-        .map(name => name.trim())
-        .filter(name => name.length > 0);
-}
-
-function drawName(){
-    const names = getNames();
-    const result = document.getElementById("lotteryResult");
-    const wheel = document.getElementById("wheel");
-    const center = document.getElementById("wheelCenter");
-
-    if(names.length === 0){
-        result.innerHTML = "請先輸入姓名名單";
-        center.textContent = "EMPTY";
-        return;
-    }
-
-    const index = Math.floor(Math.random() * names.length);
-    const picked = names[index];
-
-    spinDegree += 1080 + Math.floor(Math.random() * 720);
-    wheel.style.transform = `rotate(${spinDegree}deg)`;
-    center.textContent = "SPIN";
-
-    result.innerHTML = "抽籤中...";
-
-    setTimeout(() => {
-        center.textContent = picked;
-        result.innerHTML = `抽中：<strong style="font-size:24px;color:#ffffff;">${picked}</strong>`;
-    }, 2200);
-}
-
-function clearNames(){
-    if(confirm("確定要清除所有姓名嗎？")){
-        nameListBox.value = "";
-        localStorage.removeItem("lotteryNames");
-        document.getElementById("lotteryResult").innerHTML = "名單已清除";
-        document.getElementById("wheelCenter").textContent = "READY";
-    }
-}
+render();
 </script>
-
 </body>
 </html>
