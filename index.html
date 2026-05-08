@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>咚咚的小工具</title>
+<title>咚咚的小工具｜修正版</title>
 <style>
 *{box-sizing:border-box}
 body{
@@ -354,6 +354,14 @@ input,select,textarea{
   color:#f0abfc!important;
 }
 
+
+.excel-filter-btn.active{
+  background:linear-gradient(135deg,#a855f7,#7e22ce)!important;
+  color:#fff!important;
+  box-shadow:0 0 18px rgba(168,85,247,.30)!important;
+  border:1px solid rgba(216,180,254,.28)!important;
+}
+
 </style>
 </head>
 <body>
@@ -667,6 +675,14 @@ input,select,textarea{
   color:#f0abfc!important;
 }
 
+
+.excel-filter-btn.active{
+  background:linear-gradient(135deg,#a855f7,#7e22ce)!important;
+  color:#fff!important;
+  box-shadow:0 0 18px rgba(168,85,247,.30)!important;
+  border:1px solid rgba(216,180,254,.28)!important;
+}
+
 </style></head><body><button onclick="print()">列印 / 另存 PDF</button><hr>${body}</body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
 async function docxHtml(){const f=$('file').files[0];if(!f)throw '請先選擇 Word .docx 檔';const r=await mammoth.convertToHtml({arrayBuffer:await readBuf(f)});return r.value}
 async function excelHtml(){const f=$('file').files[0];if(!f)throw '請先選擇 Excel 檔';const wb=XLSX.read(await readBuf(f),{type:'array'});let html='';wb.SheetNames.forEach(n=>html+=`<h2>${n}</h2>`+XLSX.utils.sheet_to_html(wb.Sheets[n]));return{wb,html}}
@@ -803,7 +819,20 @@ const excelFunctions=[
 ];
 
 function catName(cat){return {math:'加總統計',logic:'邏輯判斷',lookup:'查詢比對',text:'文字處理',date:'日期時間'}[cat]||cat}
-function filterExcel(type){excelFilter=type;renderExcelFunctions()}
+function filterExcel(type){
+ excelFilter=type;
+
+ document.querySelectorAll('.excel-filter-btn').forEach(function(btn){
+   btn.classList.remove('active');
+ });
+
+ const activeBtn=document.querySelector('[data-filter="'+type+'"]');
+ if(activeBtn){
+   activeBtn.classList.add('active');
+ }
+
+ renderExcelFunctions();
+}
 function renderExcelFunctions(){
  const box=$('excelList'); if(!box)return;
  const q=($('excelSearch')?.value||'').toUpperCase();
@@ -846,7 +875,20 @@ const templates={
  currency:`<h2>幣值 USD/TWD</h2><label>金額<span>AMOUNT</span></label><input id="money" type="number" placeholder="例如：100"><label>方向<span>TYPE</span></label><select id="dir"><option value="usd_twd">美金 USD → 台幣 TWD</option><option value="twd_usd">台幣 TWD → 美金 USD</option></select><label>匯率<span>RATE</span></label><input id="fx" type="number" value="32" step="0.001"><div class="actions"><button class="primary" onclick="currencyCalc()">換算</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
  roulette:`<h2>姓名抽籤隨機羅盤</h2><p class="desc">每行輸入一個姓名，按下開始抽籤後，羅盤會旋轉並把得獎者顯示在羅盤中間。</p><label>姓名名單<span>NAMES</span></label><textarea id="names" placeholder="小明&#10;小美&#10;阿強"></textarea><div class="roulette-wrap"><div class="roulette-pointer"></div><div id="wheel" class="roulette-wheel"><div id="wheelName" class="roulette-center">READY</div></div></div><div class="actions"><button class="primary" type="button" onclick="roulette()">開始抽籤</button><button class="ghost" type="button" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
  timecalc:`<h2>時間加減計算</h2><label>基準時間<span>TIME</span></label><input id="baseTime" type="time" value="12:00"><label>加或減<span>OP</span></label><select id="op"><option value="add">加上</option><option value="sub">減去</option></select><label>小時<span>HOUR</span></label><input id="hh" type="number" value="0"><label>分鐘<span>MIN</span></label><input id="mm" type="number" value="30"><div class="actions"><button class="primary" onclick="timeCalc()">計算時間</button><button class="ghost" onclick="render()">清除</button></div><div id="result" class="result">等待操作...</div>`,
- excel_functions:`<h2>Excel 函數工具書</h2><p class="desc">這版已重新製作，避免 undefined 與整頁故障。每個函數都有實際情境、公式意思、操作步驟與範例結果。</p><label>搜尋函數<span>SEARCH</span></label><input id="excelSearch" placeholder="例如：SUM、IF、VLOOKUP" oninput="renderExcelFunctions()"><div class="actions"><button class="primary" onclick="filterExcel('all')">全部</button><button class="ghost" onclick="filterExcel('math')">加總統計</button></div><div class="actions"><button class="ghost" onclick="filterExcel('logic')">邏輯判斷</button><button class="ghost" onclick="filterExcel('lookup')">查詢比對</button></div><div class="actions"><button class="ghost" onclick="filterExcel('text')">文字處理</button><button class="ghost" onclick="filterExcel('date')">日期時間</button></div><div id="excelList" class="result"></div>`
+ excel_functions:`<h2>Excel 函數工具書</h2><p class="desc">這版已重新製作，避免 undefined 與整頁故障。每個函數都有實際情境、公式意思、操作步驟與範例結果。</p><label>搜尋函數<span>SEARCH</span></label><input id="excelSearch" placeholder="例如：SUM、IF、VLOOKUP" oninput="renderExcelFunctions()"><div class="actions">
+<button class="primary excel-filter-btn active" data-filter="all" onclick="filterExcel('all')">全部</button>
+<button class="ghost excel-filter-btn" data-filter="math" onclick="filterExcel('math')">加總統計</button>
+</div>
+
+<div class="actions">
+<button class="ghost excel-filter-btn" data-filter="logic" onclick="filterExcel('logic')">邏輯判斷</button>
+<button class="ghost excel-filter-btn" data-filter="lookup" onclick="filterExcel('lookup')">查詢比對</button>
+</div>
+
+<div class="actions">
+<button class="ghost excel-filter-btn" data-filter="text" onclick="filterExcel('text')">文字處理</button>
+<button class="ghost excel-filter-btn" data-filter="date" onclick="filterExcel('date')">日期時間</button>
+</div><div id="excelList" class="result"></div>`
 };
 
 function setGroup(g){currentGroup=g;active=groups[g][0][0];render()}
